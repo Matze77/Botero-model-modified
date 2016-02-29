@@ -24,13 +24,13 @@ sys.path.insert(0, './src')
 #
 
 import numpy as np # For efficient array operations
-import matplotlib.pyplot as plt # For plotting
+#import matplotlib.pyplot as plt # For plotting
 import time # For timing parts of the script, optimizing run time
-import pandas as pd # Easier data handling
+#import pandas as pd # Easier data handling
 import os # To create directories
 import datetime # To access the current time
 import sys # To access command line arguments
-import warnings # To warn the user
+#import warnings # To warn the user
 import csv # For file operations
 
 try: # Seaborn makes prettier plots, but is not installed in a fresh Anaconda python
@@ -57,9 +57,8 @@ if __name__ == '__main__':
     population_size=sum(constants["environment_sizes"])
     
     p=open("./path.txt","r")
-    path=p.readline()
-    print(path)
-    #print(constants["std_file"])
+    path="/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R=100/P=0.6/"
+    #path=p.readline()
     f_mean = path + "pop1_mean_genes.csv" #constants["mean_file"]   #specify path to csv file in constants (from run with constant pop size) 
     f_std = path+ "pop1_std_genes.csv" #constants["std_file"] 
     
@@ -90,15 +89,7 @@ if __name__ == '__main__':
                     break
                 elif (row[0][0]!="R") & (i > 1): #why 2* [0]?
                     env.append(list(map(float,row)))  #reads environment values 
-    mean_genes = data[-nE:,1:-1]  #just last nE rows, that is last generation. All genes, cut off n (generation) and nperPos
-    print(mean_genes)  
-    mean_genes=list(mean_genes)
-    print(mean_genes) 
-    for row in mean_genes:
-        del row[3]
-    mean_genes=np.array(mean_genes)
-    print(mean_genes)
-    
+    mean_genes = data[-nE:,1:-1]  #just last nE rows, that is last generation. All genes, cut off n (generation) and nperPos   
     sizes = data[-nE:,-1].reshape(nE) #get nperPos for last generation
     final_t = data[-1,0]*constants["L"]#*env[0][0]/constants["environments"][0][0] #final time: #generations*lifetime*R_file/R_const  #why R?
 
@@ -108,9 +99,14 @@ if __name__ == '__main__':
 
     # create environments and output information about them
     environments = []
-    for param in env:   #use environment values form file, not from constants
-        new_env = Environment(*param)
-        environments.append(new_env)
+    if constants["trans"]: #for transition runs, change environment parameters in constants file
+        for (i,param) in enumerate(constants["environments"]):  
+            new_env = Environment(*param) #create new environment
+            environments.append(new_env)
+    else:
+        for param in env:   #use environment values from file
+            new_env = Environment(*param)
+            environments.append(new_env)
 
     f3 = open(path+"__overview.txt",'w')
     f3.write("initial conditions \n")

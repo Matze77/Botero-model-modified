@@ -24,34 +24,29 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,50000,"number of generations per run"), #default
+        ("generations",int,100,"number of generations per run"), #default
             ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,[0.02],"constant cost of plasticity"), #0.02
         ("ka",float,[0.01],"cost of each adaptation"), #0.01
         ("tau",float,[0.25],"coefficient of lifetime payoff exponential"), #0.25
         ("q",float,[2.2],"controls expected number of offspring in variable scenario"), #2.2
         ("mu",float,[0.001],"mutation rate of the genes"), #0.001
-        ("environments",float,[[5.6,0.1,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
+        ("environments",float,[[100,0.2,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,[""],"displayed name of each environment"),
         ("environment_sizes",int,[5000],"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
-        ("populations",int,5,"number of identical populations per run"), 
-        ("plot_every",int, 100,"detailed output is plotted every N generations (0 = never)"),
+        ("populations",int,1,"number of identical populations per run"), 
+        ("plot_every",int, 10,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("scaling",bool,False,"Decreases gene efficiency for extreme values, by introducing scaling function in the adaption process"),
         ("migration",bool,False,"Allow migration between environments. In constant mode the population is controlled as a whole. If false, environments are completely independent"),
-        ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached")
+        ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
+        ("trans",bool,False,"for runs with variable pop size: if true use these (changed) constants, if false use the ones from the file")
 ]
 # --------------------------
 
 import argparse
-import sys
-
-if sys.argv[0] == "/Users/matthias/Documents/popdyn/botero-simultation-dion/main_variable1.py":
-    _VARIABLE = True
-else:
-    _VARIABLE = False
 
 class ModelConstants(dict):
     """Implement class for containing constants"""
@@ -82,7 +77,7 @@ for key in _PARAMETERS:
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs=5,help=key[3])
     elif key[0] in ["environment_names","limit","ka","kd","mu","q","tau","environment_sizes","std_min"]: # May have arbitrary many arguments
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs="*",help=key[3])
-    elif key[0] in ["verbose","scaling","migration"]: # Flags (true or false, no argument)
+    elif key[0] in ["verbose","scaling","migration","trans"]: # Flags (true or false, no argument)
         parser.add_argument("--"+key[0],action="store_true",help=key[3])
     else: # Ordinary, single arguments (all optional)
         parser.add_argument("--"+key[0],type=key[1],help=key[3])
@@ -113,8 +108,3 @@ print("\nRunning model with the following parameters:")
 for key in _PARAMETERS:
     print("\t{0}: {1}".format(key[0],model_constants[key[0]]))
 print("\n")
-#if _VARIABLE:
-#    print("Using input files for start genes:")
-#    for key in _VARIABLE_PARAMETERS:
-#        print("\t{0}: {1}".format(key[0],model_constants[key[0]]))
-#    print("\n")

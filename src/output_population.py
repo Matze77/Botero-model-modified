@@ -78,7 +78,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,variable=False)
 
     filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j)+'.pdf'
     if force_plot:
-        plot_situation(t,data,nPerPos,env,filename)
+        plot_situation(t,data,nPerPos,env,filename,variable)
     elif constants["plot_every"] > 0:
         if (j % constants["plot_every"]) == 0: #modulo to plot every n times
             plot_situation(t,data,nPerPos,env,filename,variable)
