@@ -24,25 +24,26 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,100,"number of generations per run"), #default
+        ("generations",int,1000,"number of generations per run"), #default
             ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,[0.02],"constant cost of plasticity"), #0.02
         ("ka",float,[0.01],"cost of each adaptation"), #0.01
         ("tau",float,[0.25],"coefficient of lifetime payoff exponential"), #0.25
         ("q",float,[2.2],"controls expected number of offspring in variable scenario"), #2.2
         ("mu",float,[0.001],"mutation rate of the genes"), #0.001
-        ("environments",float,[[100,0.2,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
+        ("environments",float,[[1000,0.6,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,[""],"displayed name of each environment"),
         ("environment_sizes",int,[5000],"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
-        ("populations",int,1,"number of identical populations per run"), 
+        ("populations",int,15,"number of identical populations per run"), 
         ("plot_every",int, 10,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("scaling",bool,False,"Decreases gene efficiency for extreme values, by introducing scaling function in the adaption process"),
         ("migration",bool,False,"Allow migration between environments. In constant mode the population is controlled as a whole. If false, environments are completely independent"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
-        ("trans",bool,False,"for runs with variable pop size: if true use these (changed) constants, if false use the ones from the file")
+        ("trans",bool,False,"for runs with variable pop size: if true use these (changed) constants, if false use the ones from the file"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R=100/P=0.6/","for variable runs: set path for genes to use, if empty: path.txt is used")
 ]
 # --------------------------
 
@@ -88,11 +89,14 @@ for key in ["R","P","A","B","O"]:
 
 # Store all read arguments in a dict
 args = parser.parse_args().__dict__
+
 # Update model_constants object with read parameters
 for key in _PARAMETERS:
     if args[key[0]]:
-        try: #for keys with several entries
+        try: #for keys with several entries            
             val=args[key[0]][0]
+            if type(val)==str:
+                raise
         except: #for keys with single numerical entry
             val=args[key[0]]
         model_constants.change_constant(key[0],val)

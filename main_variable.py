@@ -56,9 +56,11 @@ if __name__ == '__main__':
     constants = model_constants
     population_size=sum(constants["environment_sizes"])
     
-    p=open("./path.txt","r")
-    path="/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R=100/P=0.6/"
-    #path=p.readline()
+    if constants["path"] !="":
+        path=constants["path"]
+    else:  
+        p=open("./path.txt","r")
+        path=p.readline()
     f_mean = path + "pop1_mean_genes.csv" #constants["mean_file"]   #specify path to csv file in constants (from run with constant pop size) 
     f_std = path+ "pop1_std_genes.csv" #constants["std_file"] 
     
