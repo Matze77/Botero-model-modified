@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import warnings
 import math
-
+#rom numba import jit
 # Seaborn makes prettier plots, but is not installed in a fresh Anaconda python
 try: 
     import seaborn as sns 
@@ -28,12 +28,12 @@ except ImportError:
     have_seaborn = False
 
 # Import other parts of the project
-from animal import Animal
-from population import Population
-from environment import Environment
+#from animal import Animal
+#from population import Population
+#from environment import Environment
 from constants import model_constants
 
-
+#@jit
 def output_population(population,f1,f2,j,k,path,force_plot,t,env,variable=False):
     """
     Outputs state of the Population. Inputs:
@@ -70,7 +70,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,variable=False)
             mean[i].to_csv(f1, header=False, index=False, line_terminator='')
             std[i].to_csv(f2, header=False, index=False, line_terminator='')
         
-        f1.write(","+str(nPerPos[i])) #last number: animals per environment
+        f1.write(","+str(nPerPos[i])+","+str(max(np.bincount(population.lineage())))) #last number: animals per environment
         f2.write(","+str(nPerPos[i]))
 
         f1.write("\n")
@@ -88,7 +88,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,variable=False)
             plot_situation(t,data,nPerPos,env,filename,variable)
     return mean, std
 
-
+#@jit
 def plot_situation(t,data,nPerPos,env,filename,variable=False):
     
     constants = model_constants
@@ -154,7 +154,7 @@ def plot_situation(t,data,nPerPos,env,filename,variable=False):
     plt.savefig(filename)
     plt.close()
 
-
+#@jit
 def plot_size(path,fi,k): #plots the number of animals in each environment for each generation
     constants = model_constants
     nE = 0

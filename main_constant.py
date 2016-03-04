@@ -103,6 +103,7 @@ if __name__ == '__main__':
         plt.ylim(-2,2)
         plt.savefig(path+'environment_'+str(i+1)+'.pdf',bbox_inches='tight')
 
+
     # main loop over multiple populations
     nE = len(environments)
     means, stds = [], []
@@ -116,8 +117,7 @@ if __name__ == '__main__':
         while repeat:
             for j in range(nE):               
                 # create animals in each environment according to environment_sizes that already have the correct random genes
-                animal_list.extend([Animal(np.array([]),j) for _ in range(constants["environment_sizes"][j])])
-                               
+                animal_list.extend([Animal(np.array([]),position=j,lineage=_) for _ in range(constants["environment_sizes"][j])])              
             # create a Population from animal_list
             population = Population(population_size,animal_list)
 
@@ -137,11 +137,12 @@ if __name__ == '__main__':
                 f1.write("R{4},P{4},A{4},B{4},O{4}\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
                 f2.write("R{4},P{4},A{4},B{4},O{4}\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
 
-            f1.write("\nn, environment,I0,I0p,mismatch,a,b,bp,h,m,ma,s,nperPos\n")
-            f2.write("\nn,environment,I0,I0p,,mismatch,a,b,bp,h,m,ma,s,nperPos\n")
+            f1.write("\nn, environment,I0,I0p,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
+            f2.write("\nn,environment,I0,I0p,,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
                     
             # iterate on the population and create outputs
             try:
+                #%timeit iterate_population(k,population,environments,f1,f2,path)
                 pop_mean, pop_std, _ = iterate_population(k,population,environments,f1,f2,path) #create plots and return values for last generation
                 repeat = False #if pop dies out no error occurs?
             except RuntimeError:
@@ -152,10 +153,10 @@ if __name__ == '__main__':
         end = time.clock()
         if constants["verbose"]:
             print("\n---------------------------------------")
-            print(" Population {0} done! Total time: {1:.2f} min".format(k+1,(end-start)/60))
+            print(" Population {0} done! Total time: {1:.4f} min".format(k+1,(end-start)/60))
             print("---------------------------------------\n")
         else:
-            print("\n\tDone! Total time: {0:.2f} min\n".format((end-start)/60))
+            print("\n\tDone! Total time: {0:.4f} min\n".format((end-start)/60))
 
         plt.close('all')
 

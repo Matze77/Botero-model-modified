@@ -9,7 +9,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
-path="/Users/matthias/Documents/popdyn/botero-model/Output to analyze/botero compare/R=1000/P=0.1/pop1_std_genes.csv"
+path="/Users/matthias/Documents/popdyn/botero-model/fair_stop/output/16-03-04_22-39-55/pop1_std_genes.csv"
 std=[]
 with open(path) as f:
     reader = csv.reader(f,delimiter=",")
@@ -18,16 +18,21 @@ with open(path) as f:
             if row[0]=="n":
                 data = np.genfromtxt(path,skip_header=i+1,delimiter=",") #reads mean genes and n , nperPos from csv file
                 break
+names=np.genfromtxt(m,skip_header=0,delimiter=",",max_rows=1,dtype=str) #reads mean genes and n , nperPos from csv file
+std = np.genfromtxt(s,skip_header=1,delimiter=",") #reads mean genes and n , nperPos from csv file
 
-std_genes = data[:,:-1]  #all genes
+names=np.delete(names,8)
+names=np.delete(names,8)
+std_genes = data[:,:]  #all genes
 std_genes = np.fabs(std_genes) #gives absolute value
 std_genes=np.delete(std_genes,1,1) #delete env
 std_genes=np.delete(std_genes,3,1) #delete M
 std_genes=np.delete(std_genes,7,1) #delete m
 std_genes=np.delete(std_genes,7,1) #delete ma
+std_genes=np.delete(std_genes,8,1) #delete nperPos
 
 plt.figure()
-labels=["n","$I_0$","$I_0'$","$a$","$b$","$b'$","$h$","$s$"]
+labels=["n","$I_0$","$I_0'$","$a$","$b$","$b'$","$h$","$s$","Lineage"]
 for i in range(1,len(std_genes[0])):
     plt.plot(std_genes[:,0],std_genes[:,i],label=("{0}".format(labels[i])),linewidth='1')
 plt.legend()
@@ -39,9 +44,14 @@ plt.savefig("std_plot.pdf")
 
 
     
-std_genes=np.delete(std_genes,2,1) #delete I0'
-std_genes=np.delete(std_genes,4,1) #delete b'
-#std_genes=np.delete(std_genes,5,1) #delete s
+delete=["I_0","I_0p","a","b","bp","h","s"]
+for d in delete:
+    for i,n in enumerate(names):
+        if n==d:
+           names=np.delete(names,i)
+           mean_genes=np.delete(mean_genes,i-1,1)
+           std_genes=np.delete(std_genes,i-1,1)
+           break
 
 plt.figure()
 labels=["n","$I_0$","$a$","$b$","$h$","$s$"]

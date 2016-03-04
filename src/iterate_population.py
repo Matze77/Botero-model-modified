@@ -17,15 +17,16 @@
 import numpy as np 
 import time
 import sys
+#from numba import jit
 
 # Import other parts of the project
-from animal import Animal
-from population import Population
-from environment import Environment
+#from animal import Animal
+#from population import Population
+#from environment import Environment
 from constants import model_constants
 from output_population import output_population, plot_size
 
-
+#@jit
 def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
     """ 
     MAIN CONTROLLER
@@ -42,10 +43,12 @@ def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
 
     for j in np.arange(constants["generations"]):  
         # MAIN TIME STEP LOOP
-        start = time.clock()
-
+     #   start = time.clock()
+        t1=time.clock()   
         mean,std=output_population(population,f1,f2,j,k,path,False,t,environments,variable) #creates plots and csv files
-
+     #   t2=time.clock()
+      #  print("plot Time: {0:.2e}s\n".format(t2-t1))
+        t1=time.clock() 
         for _ in range(constants["L"]): #loop for time steps in each animal's life
             E, C = np.empty(nE), np.empty(nE) #initialze E, C
 
@@ -54,7 +57,9 @@ def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
 
             population.react(E,C) #animals react to environment
             t = t+1
-
+       # t2=time.clock()
+       # print("react Time (lifetime): {0:.2e}s\n".format(t2-t1))
+        t1=time.clock() 
         if variable:
             population.breed_variable() #old generation is replaced by new one
         else:
@@ -63,9 +68,12 @@ def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
         if population.size() == 0:
             print("Population died out!\n\n")
             return None, None, j
-
+        #t2=time.clock()
+        #print("breedTime: {0:.2e}s\n".format(t2-t1))        
+        #t1=time.clock()
         population.react(E,C,1)   #all plastic animals react
-
+        #t2=time.clock()
+        #print("react Time: {0:.2e}s\n".format(t2-t1))
         end = time.clock()
         if constants["verbose"]:
             print("Computation time: {0:.2e}s".format(end-start))
@@ -87,9 +95,11 @@ def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
                             stop=False
                     except:
                         if float(std[i][l])>std_min[0]:
-                            stop=False
-
-        if stop: #if all std above are <std_min: break loop
+                            stop=False                              
+        if max(np.bincount(population.lineage()))==len(population._animals):
+            print("\n Common ancestry reached, loop stopped after {0} generations!".format(j))
+            break
+        elif stop: #if all std above are <std_min: break loop
             print("\n Desired std reached, loop stopped after {0} generations!".format(j))
             break
 

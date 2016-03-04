@@ -53,14 +53,16 @@ cdef class Animal:
     cdef double h,s,a,I0,I0p,b,bp,m,ma
     cdef int adjustments
     cdef int migrations
+
     cdef double insulation
     cdef bool newborn
     cdef bool primed
     # public keyword makes the variable accessible to python
     cdef public int position
     cdef public double mismatch
+    cdef public int lineage
 
-    def __init__(self,np.ndarray[double,ndim=1] parent_genes=np.array([]),int position=nE+1):
+    def __init__(self,np.ndarray[double,ndim=1] parent_genes=np.array([]),int position=nE+1, int lineage=1):
         """Constructor"""
         self._constants = model_constants
         if not parent_genes.size: # empty argument -> random genes (default)
@@ -74,6 +76,7 @@ cdef class Animal:
         self.migrations    = 0
         self.insulation = self.genes[3]
         self.position = position
+        self.lineage=lineage
         self.newborn = True  #for newborns gene set (normal or alternative) has to be chosen
         self.primed = False #defines whiche gene set to use (normal or alternative)
         

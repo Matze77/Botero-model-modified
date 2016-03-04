@@ -17,6 +17,7 @@ import numpy as np
 
 from constants import model_constants
 import numbers
+#from numba import jit
 
 
 class Environment:
@@ -32,7 +33,7 @@ class Environment:
             self._constants = model_constants
         else:
             raise TypeError('First five arguments must be numeric.')
-
+   # @jit
     def evaluate(self,t):
         """Returns environment value E and cue C for given time t"""
         epsilon = np.random.normal(0,float(1)/3)

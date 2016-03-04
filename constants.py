@@ -24,26 +24,30 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,1000,"number of generations per run"), #default
+        ("generations",int,100,"number of generations per run"), #default
             ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,[0.02],"constant cost of plasticity"), #0.02
         ("ka",float,[0.01],"cost of each adaptation"), #0.01
         ("tau",float,[0.25],"coefficient of lifetime payoff exponential"), #0.25
         ("q",float,[2.2],"controls expected number of offspring in variable scenario"), #2.2
         ("mu",float,[0.001],"mutation rate of the genes"), #0.001
-        ("environments",float,[[1000,0.6,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
+        ("environments",float,[[1,0.6,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,[""],"displayed name of each environment"),
         ("environment_sizes",int,[5000],"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
-        ("populations",int,15,"number of identical populations per run"), 
-        ("plot_every",int, 10,"detailed output is plotted every N generations (0 = never)"),
+        ("populations",int,1,"number of identical populations per run"), 
+        ("plot_every",int, 100,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("scaling",bool,False,"Decreases gene efficiency for extreme values, by introducing scaling function in the adaption process"),
         ("migration",bool,False,"Allow migration between environments. In constant mode the population is controlled as a whole. If false, environments are completely independent"),
+        ("random_choice",bool,False,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
-        ("trans",bool,False,"for runs with variable pop size: if true use these (changed) constants, if false use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R=100/P=0.6/","for variable runs: set path for genes to use, if empty: path.txt is used")
+        ("lineage_stop",bool,False,"Stop if all animas are related to each other (common ancestor)"),
+#for variable runs: 
+        ("trans",bool,False,"if true, use these (changed) constants, if false, use the ones from the file"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R=100/P=0.6/","set path for genes to use, if empty: path.txt is used"),
+        ("use_pop",int,1,"which of the populations to use for mean_genes")
 ]
 # --------------------------
 
@@ -78,7 +82,7 @@ for key in _PARAMETERS:
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs=5,help=key[3])
     elif key[0] in ["environment_names","limit","ka","kd","mu","q","tau","environment_sizes","std_min"]: # May have arbitrary many arguments
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs="*",help=key[3])
-    elif key[0] in ["verbose","scaling","migration","trans"]: # Flags (true or false, no argument)
+    elif key[0] in ["verbose","scaling","migration","trans","random_choice","lineage_stop"]: # Flags (true or false, no argument)
         parser.add_argument("--"+key[0],action="store_true",help=key[3])
     else: # Ordinary, single arguments (all optional)
         parser.add_argument("--"+key[0],type=key[1],help=key[3])

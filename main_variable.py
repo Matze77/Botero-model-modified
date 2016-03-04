@@ -61,19 +61,13 @@ if __name__ == '__main__':
     else:  
         p=open("./path.txt","r")
         path=p.readline()
-    f_mean = path + "pop1_mean_genes.csv" #constants["mean_file"]   #specify path to csv file in constants (from run with constant pop size) 
-    f_std = path+ "pop1_std_genes.csv" #constants["std_file"] 
+    f_mean = path + "pop{0}_mean_genes.csv".format(constants["use_pop"]) #constants["mean_file"]   #specify path to csv file in constants (from run with constant pop size) 
+    f_std = path+ "pop{0}_std_genes.csv".format(constants["use_pop"]) #constants["std_file"] 
     
 
     # create output directory
     now = datetime.datetime.today()
-    path = "./output_variable/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}/".format(now)#why f_mean???? /{0}/{1:%y}-{1:%m}-{1:%d}_{1:%H}-{1:%M}-{1:%S}/
-    try: 
-        os.makedirs(path)
-        os.makedirs(path+"timeseries/")
-    except OSError:
-        if not os.path.isdir(path):
-            raise
+
 
     start = time.clock()
 
@@ -109,7 +103,15 @@ if __name__ == '__main__':
         for param in env:   #use environment values from file
             new_env = Environment(*param)
             environments.append(new_env)
-
+    path = "./output_variable/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-R{1}-P{2}/".format(now,environments[0].R,environments[0].P)
+   
+    
+    try: 
+        os.makedirs(path)
+        os.makedirs(path+"timeseries/")
+    except OSError:
+        if not os.path.isdir(path):
+            raise
     f3 = open(path+"__overview.txt",'w')
     f3.write("initial conditions \n")
 
@@ -154,7 +156,7 @@ if __name__ == '__main__':
                     genes.append(np.random.normal(size=sizes[i],loc=mean_genes[i,j],scale=std_genes[i,j])) #if std>0 create size*genes using normal distribution around mean for each environment and gene
                 else:
                     genes.append(mean_genes[i,j]*np.ones(sizes[i]))
-            animals.append([Animal(np.array(g),i) for g in zip(*genes)]) # create animals with genes in environment i, dont quite understand zip?????
+            animals.append([Animal(np.array(g),position=i,lineage=k) for k,g in enumerate(zip(*genes)])) # create animals with genes in environment i, dont quite understand zip?????
         animals = [item for sublist in animals for item in sublist] # flatten animal list ?????
             
         # create a population of population_size animals that have the correct mean genes
