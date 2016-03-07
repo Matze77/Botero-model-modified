@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # create output directory
     now = datetime.datetime.today()
-    path = "./output/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}/".format(now)
+    path = "./output/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])
     try: 
         os.makedirs(path)
         os.makedirs(path+"timeseries/")
@@ -117,7 +117,10 @@ if __name__ == '__main__':
         while repeat:
             for j in range(nE):               
                 # create animals in each environment according to environment_sizes that already have the correct random genes
-                animal_list.extend([Animal(np.array([]),position=j,lineage=_) for _ in range(constants["environment_sizes"][j])])              
+                try:
+                    animal_list.extend([Animal(np.array([]),position=j,lineage=_) for _ in range(constants["environment_sizes"][j])])           #int(str(j)+str(_))
+                except:
+                    animal_list.extend([Animal(np.array([]),position=j,lineage=_) for _ in range(constants["environment_sizes"][0])]) #if only one value is given
             # create a Population from animal_list
             population = Population(population_size,animal_list)
 

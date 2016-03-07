@@ -31,23 +31,25 @@ _PARAMETERS = [
         ("tau",float,[0.25],"coefficient of lifetime payoff exponential"), #0.25
         ("q",float,[2.2],"controls expected number of offspring in variable scenario"), #2.2
         ("mu",float,[0.001],"mutation rate of the genes"), #0.001
-        ("environments",float,[[1,0.6,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
+        ("environments",float,[[1000,0.1,1,0,0],[1000,0.8,1,0,0],[1000,0.8,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,[""],"displayed name of each environment"),
-        ("environment_sizes",int,[5000],"Specifies number of animals in each environment"),                
+        ("environment_sizes",int,[5000,5000,5000],"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
-        ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int, 100,"detailed output is plotted every N generations (0 = never)"),
+        ("populations",int,5,"number of identical populations per run"), 
+        ("plot_every",int, 1000,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("scaling",bool,False,"Decreases gene efficiency for extreme values, by introducing scaling function in the adaption process"),
-        ("migration",bool,False,"Allow migration between environments. In constant mode the population is controlled as a whole. If false, environments are completely independent"),
+        ("migration",bool,True,"Allow migration between environments. In constant mode the population is controlled as a whole. If false, environments are completely independent"),
         ("random_choice",bool,False,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
         ("lineage_stop",bool,False,"Stop if all animas are related to each other (common ancestor)"),
+        ("desc",str,"","Description of the run appended to the path"),
 #for variable runs: 
         ("trans",bool,False,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R=100/P=0.6/","set path for genes to use, if empty: path.txt is used"),
-        ("use_pop",int,1,"which of the populations to use for mean_genes")
+        ("path",str,"","set path for genes to use, if empty: path.txt is used"),
+        ("use_pop",int,1,"which of the populations to use for mean_genes"),
+
 ]
 # --------------------------
 
@@ -68,6 +70,7 @@ class ModelConstants(dict):
         if key in self:
             self[key] = val
         else:
+            
             raise KeyError("Key {0} is not a valid model constant identifier!".format(key))
     
 

@@ -108,8 +108,8 @@ def plot_situation(t,data,nPerPos,env,filename,variable=False):
     
             names = np.array(constants["environment_names"])
             if (len(names) != nE):
-                warnings.warn("Environment parameter and name arrays have different lengths!\
-                    Disregarding names.")
+                if constants["verbose"]:
+                    warnings.warn("Environment parameter and name arrays have different lengths!Disregarding names.")
                 names = ["Environment "+str(q) for q in np.arange(nE)+1]
             pos_data = pd.DataFrame({'env': names, 'val': nPerPos})
             sns.barplot('env','val',data=pos_data,ax=ax,palette=palette,order=names) #animals in environment plot

@@ -61,6 +61,7 @@ if __name__ == '__main__':
     else:  
         p=open("./path.txt","r")
         path=p.readline()
+        print(path)
     f_mean = path + "pop{0}_mean_genes.csv".format(constants["use_pop"]) #constants["mean_file"]   #specify path to csv file in constants (from run with constant pop size) 
     f_std = path+ "pop{0}_std_genes.csv".format(constants["use_pop"]) #constants["std_file"] 
     
@@ -85,8 +86,13 @@ if __name__ == '__main__':
                     break
                 elif (row[0][0]!="R") & (i > 1): #why 2* [0]?
                     env.append(list(map(float,row)))  #reads environment values 
-    mean_genes = data[-nE:,1:-1]  #just last nE rows, that is last generation. All genes, cut off n (generation) and nperPos   
-    sizes = data[-nE:,-1].reshape(nE) #get nperPos for last generation
+
+    if len(data[0])==14: #for files with lineage as last entry
+        index=-2
+    else:
+        index=-1
+    mean_genes = data[-nE:,1:index]  #just last nE rows, that is last generation. All genes, cut off n (generation) and nperPos   
+    sizes = data[-nE:,index].reshape(nE) #get nperPos for last generation
     final_t = data[-1,0]*constants["L"]#*env[0][0]/constants["environments"][0][0] #final time: #generations*lifetime*R_file/R_const  #why R?
 
     data = np.genfromtxt(f_std,skip_header=i+1,delimiter=",")
@@ -103,7 +109,7 @@ if __name__ == '__main__':
         for param in env:   #use environment values from file
             new_env = Environment(*param)
             environments.append(new_env)
-    path = "./output_variable/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-R{1}-P{2}/".format(now,environments[0].R,environments[0].P)
+    path = "./output/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])
    
     
     try: 
@@ -146,6 +152,7 @@ if __name__ == '__main__':
         # create animals with the mean genes that shall be tested for each environment
         animals=[]
         for i in range(nE):
+
             if sizes[i] == 0:
                 continue
             genes = []
@@ -156,9 +163,8 @@ if __name__ == '__main__':
                     genes.append(np.random.normal(size=sizes[i],loc=mean_genes[i,j],scale=std_genes[i,j])) #if std>0 create size*genes using normal distribution around mean for each environment and gene
                 else:
                     genes.append(mean_genes[i,j]*np.ones(sizes[i]))
-            animals.append([Animal(np.array(g),position=i,lineage=k) for k,g in enumerate(zip(*genes)])) # create animals with genes in environment i, dont quite understand zip?????
-        animals = [item for sublist in animals for item in sublist] # flatten animal list ?????
-            
+            animals.append([Animal(np.array(g),position=i,lineage=k) for k,g in enumerate(zip(*genes))])# create animals with genes in environment i
+        animals = [item for sublist in animals for item in sublist] # flatten animal list 
         # create a population of population_size animals that have the correct mean genes
         population = Population(population_size,animals)
         

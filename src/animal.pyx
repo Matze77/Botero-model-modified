@@ -62,7 +62,7 @@ cdef class Animal:
     cdef public double mismatch
     cdef public int lineage
 
-    def __init__(self,np.ndarray[double,ndim=1] parent_genes=np.array([]),int position=nE+1, int lineage=1):
+    def __init__(self,np.ndarray[double,ndim=1] parent_genes=np.array([]),int lineage,int position=nE+1):
         """Constructor"""
         self._constants = model_constants
         if not parent_genes.size: # empty argument -> random genes (default)
@@ -142,8 +142,7 @@ cdef class Animal:
         if (self.s <= 0.5):
             return scale_factor * c_max(c_exp(-tau*self.mismatch) - constants["km"] * self.migrations, 0)  #km is payed for every migration
         else:    
-            return scale_factor * c_max(c_exp(-tau*self.mismatch) - kd \
-                - self.adjustments * ka - constants["km"] * self.migrations, 0) #ka is payed for every phenotype adjustment, kd is payed every round
+            return scale_factor * c_max(c_exp(-tau*self.mismatch) - kd - self.adjustments * ka - constants["km"] * self.migrations, 0) #ka is payed for every phenotype adjustment, kd is payed every round
 
 
     cpdef mutate(self):
