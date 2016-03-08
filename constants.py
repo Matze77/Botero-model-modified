@@ -31,16 +31,16 @@ _PARAMETERS = [
         ("tau",float,[0.25],"coefficient of lifetime payoff exponential"), #0.25
         ("q",float,[2.2],"controls expected number of offspring in variable scenario"), #2.2
         ("mu",float,[0.001],"mutation rate of the genes"), #0.001
-        ("environments",float,[[1000,0.1,1,0,0],[1000,0.8,1,0,0],[1000,0.8,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
+        ("environments",float,[[1000,0.1,1,0,0]], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,[""],"displayed name of each environment"),
-        ("environment_sizes",int,[5000,5000,5000],"Specifies number of animals in each environment"),                
+        ("environment_sizes",int,[5000],"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
-        ("populations",int,5,"number of identical populations per run"), 
+        ("populations",int,1,"number of identical populations per run"), 
         ("plot_every",int, 1000,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("scaling",bool,False,"Decreases gene efficiency for extreme values, by introducing scaling function in the adaption process"),
-        ("migration",bool,True,"Allow migration between environments. In constant mode the population is controlled as a whole. If false, environments are completely independent"),
+        ("migration",bool,False,"Allow migration between environments. In constant mode the population is controlled as a whole. If false, environments are completely independent"),
         ("random_choice",bool,False,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
         ("lineage_stop",bool,False,"Stop if all animas are related to each other (common ancestor)"),
@@ -92,20 +92,24 @@ for key in _PARAMETERS:
 
 # Not included in _PARAMETERS, needs to be parsed outside of the loop
 for key in ["R","P","A","B","O"]:
-    parser.add_argument("--"+key,type=float,nargs=Nenv,help="Overrides parameter {0} for each environment".format(key))
+    parser.add_argument("--"+key,type=float,nargs="*",help="Overrides parameter {0} for each environment".format(key))
 
 # Store all read arguments in a dict
 args = parser.parse_args().__dict__
-
 # Update model_constants object with read parameters
 for key in _PARAMETERS:
     if args[key[0]]:
-        try: #for keys with several entries            
-            val=args[key[0]][0]
-            if type(val)==str:
-                raise
-        except: #for keys with single numerical entry
+        print(key[0])
+        if key[0]=='environments':
             val=args[key[0]]
+            print(val)
+        else:
+            try:  #for keys with single numerical entry          
+                val=args[key[0]][0]
+                if type(val)==str:
+                    raise
+            except: #for keys with several entries
+                val=args[key[0]]
         model_constants.change_constant(key[0],val)
 for i,key in enumerate(["R","P","A","B","O"]):
     environments = model_constants["environments"]
