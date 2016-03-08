@@ -27,7 +27,7 @@ from constants import model_constants
 from output_population import output_population, plot_size
 
 #@jit
-def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
+def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
     """ 
     MAIN CONTROLLER
     Inputs:
@@ -39,17 +39,16 @@ def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
     """
 
     constants = model_constants
-    nE = len(environments)
 
     for j in np.arange(constants["generations"]):  
         # MAIN TIME STEP LOOP
         start = time.clock()    
-        mean,std=output_population(population,f1,f2,j,k,path,False,t,environments,variable) #creates plots and csv files
+        mean,std=output_population(population,f1,f2,j,k,path,False,t,environment,variable) #creates plots and csv files
         for _ in range(constants["L"]): #loop for time steps in each animal's life
-            E, C = np.empty(nE), np.empty(nE) #initialze E, C
-            for (i,env) in enumerate(environments): #calculate E,C at time t for all environments
-                E[i], C[i] = env.evaluate(t)
+           #calculate E,C at time t for all environments
+            E, C = environment.evaluate(t)
             population.react(E,C) #animals react to environment
+
             t = t+1
         if variable:
             population.breed_variable() #old generation is replaced by new one
@@ -73,14 +72,13 @@ def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
         std_min=constants["std_min"]
         if len(std_min)!=0 and std_min:
             stop=True
-            for i in range(nE):
-                for l in ["I0","I0p","a","b","bp","h","s"]:
-                    try:
-                        if float(std[i][l])>std_min[i]:   
-                            stop=False
-                    except:
-                        if float(std[i][l])>std_min[0]:
-                            stop=False                              
+            for l in ["I0","I0p","a","b","bp","h","s"]:
+                try:
+                    if float(std[l])>std_min:   
+                        stop=False
+                except:
+                    if float(std[l])>std_min:
+                        stop=False                              
         if constants["lineage_stop"] and max(np.bincount(population.lineage()))==len(population._animals):
             print("\n Common ancestry reached, loop stopped after {0} generations!".format(j))
             break
@@ -91,7 +89,7 @@ def iterate_population(k,population,environments,f1,f2,path,t=0,variable=False):
 
 
     # Final outputs for each population
-    final_mean, final_std = output_population(population,f1,f2,j,k,path,True,t,environments,variable) #force last plot
+    final_mean, final_std = output_population(population,f1,f2,j,k,path,True,t,environment,variable) #force last plot
     f1.close()
     f2.close()
     if  variable:

@@ -54,7 +54,7 @@ path=str()
 if __name__ == '__main__':
     # Get model constants
     constants = model_constants
-    population_size=sum(constants["environment_sizes"])
+    population_size=constants["environment_sizes"]
     
 
     if have_seaborn: # initialize seaborn
@@ -83,29 +83,28 @@ if __name__ == '__main__':
 
     # plot environments
        
-    environments = []
-    for (i,param) in enumerate(constants["environments"]):  
-        T=round(5*constants["environments"][i][0]*constants["L"])  #how many time steps to plot
-        step=(constants["environments"][i][0]*constants["L"])/100 #step size
-        M=math.floor(T/step+1) #number of data points
-        t0 = np.arange(0,T,step)
-        new_env = Environment(*param) #create new environment
-        environments.append(new_env)
-        env_val = np.array(list(map(new_env.evaluate,t0))) #calculate its values
-        
-          
-        plt.figure()
-        plt.plot(t0,env_val[0:M,0],label='E', linewidth=0.5)
-        plt.plot(t0,env_val[0:M,1],'.',label='C', markersize=3.0)
-        plt.legend()
-        plt.xlabel('Time t')
-        plt.ylabel('E, C')
-        plt.ylim(-2,2)
-        plt.savefig(path+'environment_'+str(i+1)+'.pdf',bbox_inches='tight')
+    print(constants["environments"])
+  
+    T=round(5*constants["environments"][0]*constants["L"])  #how many time steps to plot
+    step=(constants["environments"][0]*constants["L"])/100 #step size
+    M=math.floor(T/step+1) #number of data points
+    t0 = np.arange(0,T,step)
+    env = Environment(*constants["environments"]) #create new environment
+
+    env_val = np.array(list(map(env.evaluate,t0))) #calculate its values
+    
+      
+    plt.figure()
+    plt.plot(t0,env_val[0:M,0],label='E', linewidth=0.5)
+    plt.plot(t0,env_val[0:M,1],'.',label='C', markersize=3.0)
+    plt.legend()
+    plt.xlabel('Time t')
+    plt.ylabel('E, C')
+    plt.ylim(-2,2)
+    plt.savefig(path+'environment.pdf',bbox_inches='tight')
 
 
     # main loop over multiple populations
-    nE = len(environments)
     means, stds = [], []
     error_occured = False
     for k in range(constants["populations"]):
@@ -114,14 +113,12 @@ if __name__ == '__main__':
         # in case a population dies out, it is repeated
         repeat = True
         animal_list=[]
-        while repeat:
-            for j in range(nE):               
+        while repeat:             
                 # create animals in each environment according to environment_sizes that already have the correct random genes
-                try:
-                    animal_list.extend([Animal(np.array([]),position=j,lineage=_) for _ in range(constants["environment_sizes"][j])])           #int(str(j)+str(_))
-                except:
-                    animal_list.extend([Animal(np.array([]),position=j,lineage=_) for _ in range(constants["environment_sizes"][0])]) #if only one value is given
+            animal_list.extend([Animal(np.array([]),lineage=_) for _ in range(constants["environment_sizes"])]) #if only one value is given
             # create a Population from animal_list
+#            for a in animal_list:
+#                print(a.genes)
             population = Population(population_size,animal_list)
 
             end = time.clock()
@@ -131,22 +128,17 @@ if __name__ == '__main__':
 
             # initial output
             f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-            f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')
+            f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')            
+            f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
+            f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
 
-            f1.write("{0}\n\n".format(nE))
-            f2.write("{0}\n\n".format(nE))
-            
-            for (i,env) in enumerate(environments):
-                f1.write("R{4},P{4},A{4},B{4},O{4}\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
-                f2.write("R{4},P{4},A{4},B{4},O{4}\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
-
-            f1.write("\nn, environment,I0,I0p,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
-            f2.write("\nn,environment,I0,I0p,,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
+            f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
+            f2.write("\nn,I0,I0p,,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
                     
             # iterate on the population and create outputs
             try:
                 #%timeit iterate_population(k,population,environments,f1,f2,path)
-                pop_mean, pop_std, _ = iterate_population(k,population,environments,f1,f2,path) #create plots and return values for last generation
+                pop_mean, pop_std, _ = iterate_population(k,population,env,f1,f2,path) #create plots and return values for last generation
                 repeat = False #if pop dies out no error occurs?
             except RuntimeError:
                 error_occured = True
@@ -167,19 +159,18 @@ if __name__ == '__main__':
         stds.append(pop_std)
 
     # plot average genes of ALL populations run (always last generation)
-    for i in range(len(constants["environments"])):
-        mean_i = [mean[i] for mean in means]
-        plt.figure()
-        average = pd.concat(mean_i)
-        if have_seaborn:
-            sns.violinplot(data=average,scale='width')
-        else:
-            average.boxplot()
-        plt.ylim(-2,2)
-        plt.xlabel("Genes")
-        plt.ylabel("Average values")
-        plt.savefig(path+"total_average_env_"+str(i+1)+".pdf",bbox_inches='tight')
-        plt.close()
+
+    plt.figure()
+    average = pd.concat(means)
+    if have_seaborn:
+        sns.violinplot(data=average,scale='width')
+    else:
+        average.boxplot()
+    plt.ylim(-2,2)
+    plt.xlabel("Genes")
+    plt.ylabel("Average values")
+    plt.savefig(path+"total_average_env_.pdf",bbox_inches='tight')
+    plt.close()
 
     if error_occured:
         warnings.warn("At least one population died out and was repeated!")
