@@ -39,11 +39,17 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
     """
 
     constants = model_constants
-
+#    Dp=[]
+#    Dm=[]
+#    D0=[]
+    sizes=[]
+    times=[]
     for j in np.arange(constants["generations"]):  
         # MAIN TIME STEP LOOP
         start = time.clock()    
-        mean,std=output_population(population,f1,f2,j,k,path,False,t,environment,variable) #creates plots and csv files
+        sizes.append(population._size)
+        times.append(t)
+        mean,std=output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
         for _ in range(constants["L"]): #loop for time steps in each animal's life
            #calculate E,C at time t for all environments
             E, C = environment.evaluate(t)
@@ -51,9 +57,17 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 
             t = t+1
         if variable:
-            population.breed_variable() #old generation is replaced by new one
+            d=population.breed_variable() #old generation is replaced by new one
         else:
-            population.breed_constant()
+            d=population.breed_constant()
+        
+#        
+#        if d>0:
+#            Dp.append(d)
+#        elif d<0:
+#            Dm.append(d)
+#        else: 
+#            D0.append(d)
         if population.size() == 0:
             print("Population died out!\n\n")
             break
@@ -89,10 +103,11 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 
 
     # Final outputs for each population
-    final_mean, final_std = output_population(population,f1,f2,j,k,path,True,t,environment,variable) #force last plot
+    final_mean, final_std = output_population(population,f1,f2,j,k,path,True,t,environment,sizes,times,variable) #force last plot
     f1.close()
     f2.close()
     if  variable:
         plot_size(path,path+"pop"+str(k+1)+"_mean_genes.csv",k) #plots the number of animals in each environment for each generation
-
+        
+   # print(np.mean(Dp)/population._size,np.std(Dp)/population._size,np.mean(Dm)/population._size,np.std(Dm)/population._size,len(D0))
     return final_mean, final_std, j #j: last generation

@@ -203,4 +203,5 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
 
 cdef inline double randnum():
     """Returns random numbers at C speed"""
-    return c_rand() / float(RAND_MAX)
+    return np.random.rand()    
+    #return c_rand() / float(RAND_MAX)

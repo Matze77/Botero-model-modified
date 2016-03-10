@@ -77,21 +77,23 @@ if __name__ == '__main__':
     p.close()
     # write simulation parameters
     f = open(path+"parameters.txt","w")
-    for key in constants:
+    for key in ['generations','L','kd','ka','tau','q','mu','environments','environment_names','environment_sizes','km','limit','populations','plot_every','verbose',\
+'random_choice','std_min','lineage_stop','desc','trans','path','use_pop']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
 
     # plot environments
        
-    print(constants["environments"])
   
-    T=round(5*constants["environments"][0]*constants["L"])  #how many time steps to plot
+    T=round(1*constants["environments"][0]*constants["L"])  #how many time steps to plot
     step=(constants["environments"][0]*constants["L"])/100 #step size
     M=math.floor(T/step+1) #number of data points
     t0 = np.arange(0,T,step)
     env = Environment(*constants["environments"]) #create new environment
-
+    
     env_val = np.array(list(map(env.evaluate,t0))) #calculate its values
+
+  
     
       
     plt.figure()
@@ -132,8 +134,8 @@ if __name__ == '__main__':
             f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
             f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
 
-            f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
-            f2.write("\nn,I0,I0p,,mismatch,a,b,bp,h,m,ma,s,nperPos,lin\n")
+            f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,s,nperPos,lin\n")
+            f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,s,nperPos,lin\n")
                     
             # iterate on the population and create outputs
             try:

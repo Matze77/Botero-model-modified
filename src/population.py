@@ -68,6 +68,7 @@ class Population:
     #    print(payoff_factor)
 
         d=np.sum(offspring)-self._constants["environment_sizes"]
+        
         if self._constants["random_choice"]:    
             Ind=np.arange(0,len(offspring))
             I=Ind[(offspring>0)] # array of relevant indices to choose from
@@ -107,66 +108,53 @@ class Population:
         self._animals = new_animals 
         if self._constants["verbose"]:
             print("Population size: {0}\tMean payoff: {1:.2f}".format(population_size,mean_payoff))
-
+        return d
  #   @jit
     def breed_variable(self):
         """Iterates the entire Population to a new generation, calculating the number of offspring of each Animal with VARIABLE population size"""
-        nE = len(self._constants["environments"])
-        if len(self._constants["q"])>1:
-            q=self._constants["q"][self.position]
-        else:
-            q=self._constants["q"][0]
-
-        calc_payoff     = np.vectorize(lambda x: x.lifetime_payoff(self._positions))
+        calc_payoff     = np.vectorize(lambda x: x.lifetime_payoff())
         lifetime_payoff = calc_payoff(self._animals)
         payoff_factor=np.array([])
         for j,animal in enumerate(self._animals):
-             payoff_factor=np.append(payoff_factor,q*lifetime_payoff[j])
+             payoff_factor=np.append(payoff_factor,self._constants["q"]*lifetime_payoff[j])
 #             if lifetime_payoff[j]<0:
 #                 print(j,lifetime_payoff[j])
 #                 print(self._animals[j].lifetime_payoff(self._positions))
-        offspring     = np.random.poisson(lam=payoff_factor)        
-        pos=np.vectorize(lambda x: x.position)
-        positions=pos(self._animals)       
-        for j in range(nE):
-            d=np.sum(offspring[positions==j])-self._constants["environment_sizes"][j]
-            if d>0:
-                if self._constants["random_choice"]:    
-                    Ind=np.arange(0,len(offspring))
-                    I=Ind[(positions==j) & (offspring>0)] # array of relevant indices to choose from
-                    if len(I)==0: 
-                        I=Ind[positions==j]
-                    for i in range(d):  
-                        stop=False
-                        while not stop:
-                            m=np.random.choice(I)
-                            if  offspring[m]!=0: #animals with zero offspring are disregarded unless there are no animals in the environment
-                                offspring[m]-=1
-                                stop=True
-                else:
-                    pf=np.array(payoff_factor)
-                    mx=np.max(pf)
-                    pf[(offspring==0)|(positions!=j)]=mx+1 #to make sure that no animals with offspring 0 or from other environment are selected
-                    for i in range(d):                         
-                        m=np.argmin(pf)
+        offspring     = np.random.poisson(lam=payoff_factor)             
+        d=np.sum(offspring)-self._constants["environment_sizes"]      
+        if self._constants["random_choice"]:    
+            I=np.arange(0,len(offspring))[offspring>0] # array of relevant indices to choose from  
+            for i in range(d):  
+                stop=False
+                while not stop:
+                    m=np.random.choice(I)
+                    if  offspring[m]!=0: #animals with zero offspring are disregarded unless there are no animals in the environment
                         offspring[m]-=1
-                        if offspring[m]==0:
-                            pf[m]=mx+1                        
+                        stop=True
+        else:
+            pf=np.array(payoff_factor)
+            if d>0:#if environment overcrowded let the least fit animals have less offspring
+                mx=np.max(pf)
+                pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0 or from other environment are selected
+                for i in range(d):                         
+                    m=np.argmin(pf)
+                    offspring[m]-=1
+                    if offspring[m]==0:
+                        pf[m]=mx+1
         born_animals   = np.repeat(self._animals,offspring)
         try: # check if all animals are dead yet
             born_animals[0]
         except IndexError:
             self._size = 0
             return
-        mutate_pop = np.vectorize(lambda x: Animal(x.mutate(),x.position))
+        mutate_pop = np.vectorize(lambda x: Animal(x.mutate(),x.lineage))
         new_animals = mutate_pop(born_animals)
-        self._animals = new_animals 
-        self._positions = self.positions() #update positions
+        self._animals = new_animals        
         N = len(new_animals)
+        self._size=N
         if self._constants["verbose"]:
-            print("\n\nAnimals per environment: {0}".format(self._positions))
             print("Population size: {0}".format(N))
-                 
+        return d          
     def lineage(self):
         '''Returns the lineage of each animal'''
         fun = np.vectorize(lambda x: x.lineage)

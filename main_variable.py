@@ -54,7 +54,7 @@ from iterate_population import iterate_population
 if __name__ == '__main__':
     # Get model constants
     constants = model_constants
-    population_size=sum(constants["environment_sizes"])
+    population_size=constants["environment_sizes"]
     
     if constants["path"] !="":
         path=constants["path"]
@@ -73,43 +73,47 @@ if __name__ == '__main__':
     start = time.clock()
 
     # read the csv files
-    nE = 0
-    env = []
+
     with open(f_mean) as f:
         reader = csv.reader(f,delimiter=",")
         for (i,row) in enumerate(reader):
             if row:
-                if i == 0:
-                    nE = int(row[0]) #get number of environments from first line
-                elif row[0]=="n":
+                if row[0]=="n":
                     data = np.genfromtxt(f_mean,skip_header=i+1,delimiter=",") #reads mean genes and n , nperPos from csv file
                     break
-                elif (row[0][0]!="R") & (i > 1): #why 2* [0]?
-                    env.append(list(map(float,row)))  #reads environment values 
-
-    if len(data[0])==14: #for files with lineage as last entry
-        index=-2
+                elif (row[0][0]!="R"): #why 2* [0]?
+                    environment=list(map(float,row))  #reads environment values 
+    
+    std = np.genfromtxt(f_std,skip_header=i+1,delimiter=",")
+    if len(std[0])==10:
+        std=np.delete(std,3,1) #delete mismatch
+    if len(data[0])==11:
+        data=np.delete(data,(3,10),1) #delete mismatch,lineage
+        std=np.delete(std,(3,10),1) #delete mismatch,lineage
+    elif len(data[0])==12: #for files with lineage as last entry    
+        data=np.delete(data,(1,8,9),1) #delete environment,m ,ma
+        std=np.delete(std,(1,8,9),1) #delete environment,m ,ma
+    elif len(data[0])==13:
+        data=np.delete(data,(1,4,9,10),1) #delete environment,mismatch, m,ma
+        std=np.delete(std,(1,4,9,10),1) #delete environment,mismatch, m,ma
     else:
-        index=-1
-    mean_genes = data[-nE:,1:index]  #just last nE rows, that is last generation. All genes, cut off n (generation) and nperPos   
-    sizes = data[-nE:,index].reshape(nE) #get nperPos for last generation
+        raise Exception("Check the delete mechanisms for initial data!")
+    
+    mean_genes = data[-1,1:-1]  #just last row, that is last generation. All genes, cut off generation and size 
     final_t = data[-1,0]*constants["L"]#*env[0][0]/constants["environments"][0][0] #final time: #generations*lifetime*R_file/R_const  #why R?
+    std_genes = data[-1,1:-1] #std of genes from last generation
+    std_genes = np.fabs(std_genes) #gives absolute value  
+    size=data[-1,-1]    
 
-    data = np.genfromtxt(f_std,skip_header=i+1,delimiter=",")
-    std_genes = data[-nE:,1:-1] #std of genes from last generation
-    std_genes = np.fabs(std_genes) #gives absolute value
 
     # create environments and output information about them
-    environments = []
+
     if constants["trans"]: #for transition runs, change environment parameters in constants file
-        for (i,param) in enumerate(constants["environments"]):  
-            new_env = Environment(*param) #create new environment
-            environments.append(new_env)
-    else:
-        for param in env:   #use environment values from file
-            new_env = Environment(*param)
-            environments.append(new_env)
-    path = "./output/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])
+        env = Environment(*constants["environments"]) 
+    else: #or use environment from constant run
+        env = Environment(*environment)
+
+    path = "./output_variable/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])
    
     
     try: 
@@ -120,13 +124,12 @@ if __name__ == '__main__':
             raise
     f3 = open(path+"__overview.txt",'w')
     f3.write("initial conditions \n")
+    f3.write("R,P,A,B,O\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
 
-    for (i,env) in enumerate(environments):
-        f3.write("R{4},P{4},A{4},B{4},O{4}\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
-
-    f3.write("Mean genes(environment,I0,I0p,a,b,bp,h,m,ma,s):\n{0}\n".format(mean_genes))
+    f3.write("Mean genes(I0,I0p,a,b,bp,h,m,ma,s):\n{0}\n".format(mean_genes))
     f3.write("Std genes:\n{0}\n".format(std_genes))
-    for key in constants:
+    for key in ['generations','L','kd','ka','tau','q','mu','environments','environment_names','environment_sizes','km','limit','populations','plot_every','verbose',\
+'random_choice','std_min','lineage_stop','desc','trans','path','use_pop']:
         f3.write("{0}:\t{1}\n".format(key,constants[key]))
     
 
@@ -142,35 +145,28 @@ if __name__ == '__main__':
         # write starting genes in files
 
         f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-        f1.write("{0}\n\n".format(nE))
-        f1.write("n,environment,I0,I0p,a,b,bp,h,s,m,ma,size\n")
-        
+        f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,s,size,lin\n")        
         f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')
-        f2.write("{0}\n\n".format(nE))
-        f2.write("n,environment,I0,I0p,a,b,bp,h,s,m,ma,size\n")
+        f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,s,size,lin\n")
             
         # create animals with the mean genes that shall be tested for each environment
         animals=[]
-        for i in range(nE):
-
-            if sizes[i] == 0:
-                continue
-            genes = []
-            # unfortunately, the genes are written in a different order as it is used here
-            gene_order = [6,9,3,1,2,4,5,7,8]
-            for j in gene_order:
-                if (std_genes[i,j] > 0):
-                    genes.append(np.random.normal(size=sizes[i],loc=mean_genes[i,j],scale=std_genes[i,j])) #if std>0 create size*genes using normal distribution around mean for each environment and gene
-                else:
-                    genes.append(mean_genes[i,j]*np.ones(sizes[i]))
-            animals.append([Animal(np.array(g),position=i,lineage=k) for k,g in enumerate(zip(*genes))])# create animals with genes in environment i
+        genes = []
+        # unfortunately, the genes are written in a different order as it is used here
+        gene_order = [5,6,2,0,1,3,4]
+        for j in gene_order:
+            if (std_genes[j] > 0):
+                genes.append(np.random.normal(size=size,loc=mean_genes[j],scale=std_genes[j])) #if std>0 create size*genes using normal distribution around mean for each environment and gene
+            else:
+                genes.append(mean_genes[j]*np.ones(size))
+        animals.append([Animal(np.array(g),lineage=k) for k,g in enumerate(zip(*genes))])# create animals with genes in environment i
         animals = [item for sublist in animals for item in sublist] # flatten animal list 
         # create a population of population_size animals that have the correct mean genes
         population = Population(population_size,animals)
         
         
         f3.write("Population {0}".format(k+1))
-        pop_mean, pop_std, final_gen = iterate_population(k,population,environments,f1,f2,path,final_t,True) #start at final time of constant pop run
+        pop_mean, pop_std, final_gen = iterate_population(k,population,env,f1,f2,path,final_t,True) #start at final time of constant pop run
         end = time.clock()
 
 

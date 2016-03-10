@@ -34,7 +34,7 @@ except ImportError:
 from constants import model_constants
 
 #@jit
-def output_population(population,f1,f2,j,k,path,force_plot,t,env,variable=False):
+def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,variable=False):
     """
     Outputs state of the Population. Inputs:
         population: instance of Population to be output, 
@@ -76,19 +76,18 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,variable=False)
 
     filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j)+'.pdf'
     if force_plot:
-        plot_situation(t,data,n,env,filename,variable)
+        plot_situation(t,data,n,env,filename,sizes,times,variable)
     elif constants["plot_every"] > 0:
         if (j % constants["plot_every"]) == 0: #modulo to plot every n times
-            plot_situation(t,data,n,env,filename,variable)
+            plot_situation(t,data,n,env,filename,sizes,times,variable)
     elif constants["plot_every"] < 0:
         T=math.ceil(constants["environments"][0]/6)  #if plot_every is set smaller than 0, plot 6 times per environment cycle
         if (j % T) == 0: 
-            plot_situation(t,data,n,env,filename,variable)
+            plot_situation(t,data,n,env,filename,sizes,times,variable)
     return mean, std
 
 #@jit
-def plot_situation(t,data,n,env,filename,variable=False):
-    
+def plot_situation(t,data,n,env,filename,sizes,times,variable=False):
     constants = model_constants
     if constants["verbose"]:
         print("\nPlotting ...")
@@ -100,21 +99,14 @@ def plot_situation(t,data,n,env,filename,variable=False):
     if variable:
         rows=5
         index=1
-        ax = plt.subplot2grid((1,1),(0,0))
-        if have_seaborn:
-    
-            name = np.array(constants["environment_names"])
-            if (len(name) ==0):
-                if constants["verbose"]:
-                    warnings.warn("Environment parameter and name arrays have different lengths!Disregarding names.")
-                name = "Environment1"
-            pos_data = pd.DataFrame({'env': name, 'val': n})
-            sns.barplot('env','val',data=pos_data,ax=ax,palette=palette) #animals in environment plot
-        else:
-            ax.bar(np.array(constants["environment_names"]),n,0.7)
-        ax.set_xlabel("Environment",fontsize=fsize)
-        ax.set_ylabel("#Animals",fontsize=fsize)
-        ax.set_ylim(0,constants["environment_sizes"])
+        ax = plt.subplot2grid((rows,1),(0,0))       
+        ax.plot(times,sizes,"-")
+        ax.set_xlim(times[0],t+1)
+        ax.set_xlabel("Time",fontsize=fsize)
+        ax.set_ylim(0,constants["environment_sizes"]+200)
+        ax.set_ylabel("Size",fontsize=fsize)
+        plt.tick_params(axis='both', which='both', labelsize=fsize)
+       
 
 
     if (n> 0):
@@ -160,11 +152,11 @@ def plot_size(path,fi,k): #plots the number of animals in each environment for e
             data = np.genfromtxt(fi,skip_header=i+1,delimiter=",")
             break
 
-    sizes = data[:,-1] #[:,-1] gives all elements in the last column (n per position), reshape makes rows corresponding to the generation (nE values per row)                                     
+    sizes = data[:,-2] #[:,-2] gives all elements in the last column (n per position)                                
     plt.figure()
     plt.plot(sizes[:],alpha=0.7,label="Environment ",linewidth=0.5)  #sizes[:,i] gives the elements of the ith column
     plt.legend()
-    plt.ylim(0,sum(constants["environment_sizes"])+200)
+    plt.ylim(0,constants["environment_sizes"]+200)
     plt.xlabel("Generation")
     plt.ylabel("Number of individuals")
     plt.savefig(str(path)+"sizes_"+str(int(k)+1)+".pdf",bbox_inches='tight')
