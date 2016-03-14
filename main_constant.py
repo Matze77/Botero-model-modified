@@ -85,7 +85,7 @@ if __name__ == '__main__':
     # plot environments
        
   
-    T=round(1*constants["environments"][0]*constants["L"])  #how many time steps to plot
+    T=round(5*constants["environments"][0]*constants["L"])  #how many time steps to plot
     step=(constants["environments"][0]*constants["L"])/100 #step size
     M=math.floor(T/step+1) #number of data points
     t0 = np.arange(0,T,step)
