@@ -42,26 +42,26 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 #    Dp=[]
 #    Dm=[]
 #    D0=[]
-    sizes=[]
-    times=[]
-    for j in np.arange(constants["generations"]):  
+    sizes=[population._size]
+    times=[t]
+    mean,std=output_population(population,f1,f2,0,k,path,True,t,environment,sizes,times,variable) #creates plots and csv files
+    for j in np.arange(1,constants["generations"]+1):  
         # MAIN TIME STEP LOOP
         start = time.clock()    
-        sizes.append(population._size)
-        times.append(t)
-        mean,std=output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
         for _ in range(constants["L"]): #loop for time steps in each animal's life
            #calculate E,C at time t for all environments
             E, C = environment.evaluate(t)
             population.react(E,C) #animals react to environment
 
             t = t+1
+        mean,std=output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
         if variable:
             d=population.breed_variable() #old generation is replaced by new one
         else:
             d=population.breed_constant()
-        
-#        
+                
+        sizes.append(population._size)
+        times.append(t)
 #        if d>0:
 #            Dp.append(d)
 #        elif d<0:
@@ -77,7 +77,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
             print("Computation time: {0:.2e}s".format(end-start))
 
 	    # Print progress bar
-        percent = float(j+1) / constants["generations"]
+        percent = float(j) / constants["generations"]
         hashes = '#' * int(round(percent * 20))
         spaces = ' ' * (20 - len(hashes))
         sys.stdout.write("\rProgress population {2} of {3}: [{0}] {1:.1f}%".format(hashes + spaces, percent * 100,k+1,constants["populations"]))

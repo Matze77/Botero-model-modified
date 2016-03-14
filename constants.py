@@ -24,20 +24,20 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,50,"number of generations per run"), #default
+        ("generations",int,20000,"number of generations per run"), #default
             ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
         ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
         ("mu",float,0.001,"mutation rate of the genes"), #0.001
-        ("environments",float,[1000,1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
+        ("environments",float,[1,1,0,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,"","displayed name of each environment"),
         ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
         ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int,10,"detailed output is plotted every N generations (0 = never)"),
+        ("plot_every",int,100,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("random_choice",bool,False,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
@@ -99,8 +99,7 @@ for key in _PARAMETERS:
     if args[key[0]]:
         print(key[0])
         if key[0]=='environments':
-            val=args[key[0]]
-            print(val)
+            val=args[key[0]][0][0]
         else:
             try:  #for keys with single numerical entry          
                 val=args[key[0]][0]
@@ -112,8 +111,7 @@ for key in _PARAMETERS:
 for i,key in enumerate(["R","P","A","B","O"]):
     environments = model_constants["environments"]
     if args[key]:
-        for j,env in enumerate(environments):
-            env[i] = args[key][j]
+        environments[i] = args[key]
         model_constants.change_constant("environments",environments)
 
 # Print some information
