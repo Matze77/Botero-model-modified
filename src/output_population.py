@@ -68,7 +68,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
         mean.to_csv(f1, header=False, index=False, line_terminator='')
         std.to_csv(f2, header=False, index=False, line_terminator='')
     
-    f1.write(","+str(n)+","+str(max(np.bincount(population.lineage())))) #last number: animals per environment
+    f1.write(","+str(n)+","+str(max(np.bincount(population.lineage())))) #last numbers: number of animals and size of biggest family
     f2.write(","+str(n))
 
     f1.write("\n")

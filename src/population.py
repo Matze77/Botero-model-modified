@@ -67,10 +67,10 @@ class Population:
     #    print(offspring)
     #    print(payoff_factor)
 
-        d=np.sum(offspring)-self._constants["environment_sizes"]
+        d=np.sum(offspring)-population_size
         
         if self._constants["random_choice"]:    
-            Ind=np.arange(0,len(offspring))
+            Ind=np.arange(0,len(offspring)) #all indices
             I=Ind[(offspring>0)] # array of relevant indices to choose from
             if len(I)==0: 
                 I=Ind
@@ -82,14 +82,14 @@ class Population:
                 stop=False
                 while not stop:
                     m=np.random.choice(I)
-                    if  offspring[m]!=0 or sum(offspring)==0: #animals with zero offspring are disregarded unless there are no animals in the environment
+                    if  offspring[m]!=0 or sum(offspring)==0: #animals with zero offspring are disregarded unless there is no offspring
                         offspring[m]+=add
                         stop=True
         else:
             pf=np.array(payoff_factor)
             if d>0:#if environment overcrowded let the least fit animals have less offspring
                 mx=np.max(pf)
-                pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0 or from other environment are selected
+                pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0  are selected
                 for i in range(d):                         
                     m=np.argmin(pf)
                     offspring[m]-=1
@@ -103,8 +103,8 @@ class Population:
                     offspring[m]+=1  
     #    print(offspring)                                           
         born_animals = np.repeat(self._animals,offspring) # Create list with offspring repeats for each animal (cloned animals)      
-        mutate_pop = np.vectorize(lambda x: Animal(x.mutate(),x.lineage)) #animals are created with mutated genes and at the position of their parents
-        new_animals = mutate_pop(born_animals) #create and mutate offspring (use mutated genes as parent genes), ordered with respect to environment        
+        mutate_pop = np.vectorize(lambda x: Animal(x.mutate(),x.lineage)) #animals are created with mutated genes of their parents
+        new_animals = mutate_pop(born_animals) #create and mutate offspring (use mutated genes as parent genes)      
         self._animals = new_animals 
         if self._constants["verbose"]:
             print("Population size: {0}\tMean payoff: {1:.2f}".format(population_size,mean_payoff))
@@ -117,9 +117,6 @@ class Population:
         payoff_factor=np.array([])
         for j,animal in enumerate(self._animals):
              payoff_factor=np.append(payoff_factor,self._constants["q"]*lifetime_payoff[j])
-#             if lifetime_payoff[j]<0:
-#                 print(j,lifetime_payoff[j])
-#                 print(self._animals[j].lifetime_payoff(self._positions))
         offspring     = np.random.poisson(lam=payoff_factor)             
         d=np.sum(offspring)-self._constants["environment_sizes"]      
         if self._constants["random_choice"]:    
@@ -128,7 +125,7 @@ class Population:
                 stop=False
                 while not stop:
                     m=np.random.choice(I)
-                    if  offspring[m]!=0: #animals with zero offspring are disregarded unless there are no animals in the environment
+                    if  offspring[m]!=0: #animals with zero offspring are disregarded 
                         offspring[m]-=1
                         stop=True
         else:

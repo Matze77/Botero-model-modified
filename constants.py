@@ -24,7 +24,7 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,10000,"number of generations per run"), #default
+        ("generations",int,100,"number of generations per run"), #default
             ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
@@ -36,7 +36,7 @@ _PARAMETERS = [
         ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
-        ("populations",int,5,"number of identical populations per run"), 
+        ("populations",int,1,"number of identical populations per run"), 
         ("plot_every",int,0,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("random_choice",bool,True,"If animals for cloning/killing should be chosen at random or dependent on fitness"),

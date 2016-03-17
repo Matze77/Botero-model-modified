@@ -44,7 +44,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 #    D0=[]
     sizes=[population._size]
     times=[t]
-    mean,std=output_population(population,f1,f2,0,k,path,True,t,environment,sizes,times,variable) #creates plots and csv files
+    output_population(population,f1,f2,0,k,path,True,t,environment,sizes,times,variable) #creates plots and csv files
     for j in np.arange(1,constants["generations"]+1):  
         # MAIN TIME STEP LOOP
         start = time.clock()    
@@ -54,7 +54,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
             population.react(E,C) #animals react to environment
 
             t = t+1
-        mean,std=output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
+        output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
         if variable:
             d=population.breed_variable() #old generation is replaced by new one
         else:
