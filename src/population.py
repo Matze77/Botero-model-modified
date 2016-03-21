@@ -118,26 +118,27 @@ class Population:
         for j,animal in enumerate(self._animals):
              payoff_factor=np.append(payoff_factor,self._constants["q"]*lifetime_payoff[j])
         offspring     = np.random.poisson(lam=payoff_factor)             
-        d=np.sum(offspring)-self._constants["environment_sizes"]      
-        if self._constants["random_choice"]:    
-            I=np.arange(0,len(offspring))[offspring>0] # array of relevant indices to choose from  
-            for i in range(d):  
-                stop=False
-                while not stop:
-                    m=np.random.choice(I)
-                    if  offspring[m]!=0: #animals with zero offspring are disregarded 
+        d=np.sum(offspring)-self._constants["environment_sizes"]    
+        if d>0:
+            if self._constants["random_choice"]:    
+                I=np.arange(0,len(offspring))[offspring>0] # array of relevant indices to choose from  
+                for i in range(d):  
+                    stop=False
+                    while not stop:
+                        m=np.random.choice(I)
+                        if  offspring[m]!=0: #animals with zero offspring are disregarded 
+                            offspring[m]-=1
+                            stop=True
+            else:
+                pf=np.array(payoff_factor)
+                if d>0:#if environment overcrowded let the least fit animals have less offspring
+                    mx=np.max(pf)
+                    pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0 or from other environment are selected
+                    for i in range(d):                         
+                        m=np.argmin(pf)
                         offspring[m]-=1
-                        stop=True
-        else:
-            pf=np.array(payoff_factor)
-            if d>0:#if environment overcrowded let the least fit animals have less offspring
-                mx=np.max(pf)
-                pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0 or from other environment are selected
-                for i in range(d):                         
-                    m=np.argmin(pf)
-                    offspring[m]-=1
-                    if offspring[m]==0:
-                        pf[m]=mx+1
+                        if offspring[m]==0:
+                            pf[m]=mx+1
         born_animals   = np.repeat(self._animals,offspring)
         try: # check if all animals are dead yet
             born_animals[0]

@@ -77,7 +77,7 @@ if __name__ == '__main__':
     p.close()
     # write simulation parameters
     f = open(path+"parameters.txt","w")
-    for key in ['generations','L','kd','ka','tau','q','mu','environments','environment_names','environment_sizes','km','limit','populations','plot_every','verbose',\
+    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','km','limit','populations','plot_every','verbose',\
 'random_choice','std_min','lineage_stop','desc','trans','path','use_pop']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
@@ -134,8 +134,8 @@ if __name__ == '__main__':
             f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
             f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
 
-            f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,s,nperPos,lin\n")
-            f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,s,nperPos,lin\n")
+            f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
+            f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
                     
             # iterate on the population and create outputs
             try:
@@ -159,7 +159,15 @@ if __name__ == '__main__':
 
         means.append(pop_mean)
         stds.append(pop_std)
-
+        f3 = open(path+"pop"+str(k+1)+"_final_state.csv",'w')
+        f3.write("h,s,a,I0,I0p,b,bp,mu,mismatch\n")
+        for a in population.animals():
+            for i,g in enumerate(a.genes):
+                if i!=0:
+                    f3.write(",") 
+                f3.write(str(g))
+            f3.write(","+str(a.mismatch))
+            f3.write("\n") 
     # plot average genes of ALL populations run (always last generation)
 
     plt.figure()
@@ -177,4 +185,4 @@ if __name__ == '__main__':
     if error_occured:
         warnings.warn("At least one population died out and was repeated!")
 
-
+    

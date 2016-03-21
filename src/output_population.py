@@ -127,9 +127,9 @@ def plot_situation(t,data,n,env,filename,sizes,times,variable=False):
         scale = 5*constants["L"]*env.R #5 whole cycles per plot
         if t <= constants["L"]*constants["generations"]:
 
-            t0 = np.arange(min(max(0,t-scale/2), np.abs(constants["L"]*constants["generations"]-scale)) ,min(constants["L"]*constants["generations"],max(t+scale/2,scale))) #star always in the middle except at beginning and end
+            t0 = np.arange(min(max(0,t-scale/2), np.abs(constants["L"]*constants["generations"]-scale)) ,min(constants["L"]*constants["generations"],max(t+scale/2,scale)),0.01*env.R*constants["L"]) #star always in the middle except at beginning and end
         else:
-            t0 = np.arange(t-scale/2,t+scale/2)
+            t0 = np.arange(t-scale/2,t+scale/2,0.01*env.R*constants["L"])
         ax1.plot(t0,np.array(list(map(env.evaluate,t0)))[:,0]) #plot E(t)
         ax1.scatter(t,env.evaluate(t)[0],s=250,marker='*') #show actual time as *
         ax1.set_ylim(-2,2)

@@ -29,22 +29,23 @@ _PARAMETERS = [
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
-        ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
-        ("mu",float,0.001,"mutation rate of the genes"), #0.001
-        ("environments",float,[100,1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
+        ("q",float,3,"controls expected number of offspring in variable scenario"), #2.2
+        ("mutation",str,["normal","0.001","0.0","0.001"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
+        the last value is the standard deviation for the mutation of this gene"), #0.001
+        ("environments",float,[0.5,1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,"","displayed name of each environment"),
         ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
         ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int,0,"detailed output is plotted every N generations (0 = never)"),
+        ("plot_every",int,5,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("random_choice",bool,True,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
         ("lineage_stop",bool,False,"Stop if all animas are related to each other (common ancestor)"),
         ("desc",str,"","Description of the run appended to the path"),
 #for variable runs: 
-        ("trans",bool,False,"if true, use these (changed) constants, if false, use the ones from the file"),
+        ("trans",bool,True,"if true, use these (changed) constants, if false, use the ones from the file"),
         ("path",str,"","set path for genes to use, if empty: path.txt is used"),
         ("use_pop",int,1,"which of the populations to use for mean_genes"),
 
@@ -79,8 +80,9 @@ parser = argparse.ArgumentParser()
 
 for key in _PARAMETERS:
     if key[0] in ["environments"]: # Setting R,P,A,B,O for each environment
-        Nenv = len(key[2])
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs=5,help=key[3])
+    elif key[0] in ["mutation"]: # Setting R,P,A,B,O for each environment
+        parser.add_argument("--"+key[0],type=key[1],action="append",nargs=4,help=key[3])
     elif key[0] in ["verbose","scaling","migration","trans","random_choice","lineage_stop"]: # Flags (true or false, no argument)
         parser.add_argument("--"+key[0],action="store_true",help=key[3])
     else: # Ordinary, single arguments (all optional)
@@ -95,8 +97,7 @@ args = parser.parse_args().__dict__
 # Update model_constants object with read parameters
 for key in _PARAMETERS:
     if args[key[0]]:
-        print(key[0])
-        if key[0]=='environments':
+        if key[0] in['environments',"mutation"]:
             val=args[key[0]][0]
         else:      
             val=args[key[0]]

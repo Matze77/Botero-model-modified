@@ -86,7 +86,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         std_min=constants["std_min"]
         if len(std_min)!=0 and std_min:
             stop=True
-            for l in ["I0","I0p","a","b","bp","h","s"]:
+            for l in ["I0","I0p","a","b","bp","mu","h","s"]:
                 try:
                     if float(std[l])>std_min:   
                         stop=False

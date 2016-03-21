@@ -44,3 +44,5 @@ class Environment:
         else:
             C = np.random.normal(mu,sigma)
         return E,C
+        
+

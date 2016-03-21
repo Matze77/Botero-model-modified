@@ -41,7 +41,8 @@ constants = model_constants
 cdef double tau=constants["tau"]
 cdef double kd=constants["kd"]
 cdef double ka=constants["ka"]
-cdef double mu =constants["mu"]
+cdef double scale_mu=float(constants["mutation"][3]) #standard deviation for mutation of mutation rate
+
 
 
 
@@ -49,9 +50,8 @@ cdef class Animal:
     """Implements a cython class Animal, that is also available outside of this module"""
     # properties of Animal, typed as C variables for speed
     cdef object _constants
-    cdef double h,s,a,I0,I0p,b,bp
+    cdef double h,s,a,I0,I0p,b,bp,mu
     cdef int adjustments
-
     cdef double insulation
     cdef bool newborn
     cdef bool primed
@@ -65,6 +65,8 @@ cdef class Animal:
         if not parent_genes.size: # empty argument -> random genes (default)
             self.genes = random_genes()
         else:
+            if len(parent_genes)==7:
+                parent_genes=np.append(parent_genes,float(constants["mutation"][1]))
             self.genes = parent_genes
         self.mismatch = 0
         self.adjustments = 0 
@@ -114,17 +116,22 @@ cdef class Animal:
         cdef np.ndarray[double,ndim=1] new_genes = self.genes
         cdef int k
         cdef double r, mutation_step            
-
+        
+        if scale_mu>0:
+            r = randnum()
+            if (r<=self.mu):
+                mutation_step = np.random.normal(loc=0,scale=scale_mu)  #mutate mutation rate with much lower step size
+                new_genes[7] += mutation_step
         for k in [0,1,3,4]: #genes modified for all individuals: h, s, I0, I0'
             r = randnum()
-            if (r<=mu):
+            if (r<=self.mu):
                 mutation_step = np.random.normal(loc=0,scale=0.05)
                 new_genes[k] += mutation_step
-           
+             
         if new_genes[1] > 0.5: # other genes modified if individual is plastic (s>0.5): a , b, b'
             for k in [2,5,6]:
                 r = randnum()
-                if (r<=mu):
+                if (r<=self.mu):
                     mutation_step = np.random.normal(loc=0,scale=0.05)
                     new_genes[k] += mutation_step                             
         else:
@@ -137,12 +144,12 @@ cdef class Animal:
     property gene_dict:
         """Allows the genes of the animal to be read from python as a dict by calling animal.gene_dict"""
         def __get__(self):
-            return {"h":self.h,"s":self.s,"a":self.a,"I0":self.I0,"I0p":self.I0p,"b":self.b,"bp":self.bp}
+            return {"h":self.h,"s":self.s,"a":self.a,"I0":self.I0,"I0p":self.I0p,"b":self.b,"bp":self.bp,"mu":self.mu}
 
     property genes:
         """Allows the genes of the animal to be read and written from python as a list by calling animal.genes"""
         def __get__(self):
-            return np.array([self.h,self.s,self.a,self.I0,self.I0p,self.b,self.bp])
+            return np.array([self.h,self.s,self.a,self.I0,self.I0p,self.b,self.bp,self.mu])
 
         def __set__(self, object genes):
             self.set_genes(genes)
@@ -184,6 +191,8 @@ cdef class Animal:
             self.bp = genes[6]
         else:
             self.bp = c_max(0,c_min(1,genes[6]))
+     
+        self.mu = c_max(0,c_min(1,genes[7]))  
     
 
 # PROTECTED FUNCTIONS
@@ -191,14 +200,32 @@ cdef class Animal:
 
 cdef inline np.ndarray[double,ndim=1] random_genes():
     """Returns random values for the 9 genes in the chosen intervals:
-    h: 1, s: [0,1], a: [0,1], I0: [-1,1], I0p: [-1,1], b: [-2,2], bp: [-2,2]"""
+    h: 1, s: [0,1], a: [0,1], I0: [-1,1], I0p: [-1,1], b: [-2,2], bp: [-2,2] ,mu: from normal/uniform distr."""
     cdef np.ndarray[double,ndim=1] rand_numbers, rand_genes 
+    cdef str distr_mut
+    cdef double mut1,mut2
     rand_numbers = np.array([randnum() for _ in np.arange(7)])
-
+ 
     rand_genes = [0,1,1,2,2,4,4]*rand_numbers+[1,0,0,-1,-1,-2,-2]
 
     if (rand_genes[1]<=0.5):
         rand_genes[2], rand_genes[5], rand_genes[6]  = 0, 0, 0
+        
+    distr_mut=constants["mutation"][0]
+    mut1=float(constants["mutation"][1])
+    mut2=float(constants["mutation"][2])
+    if distr_mut=="normal":
+        if mut2==0:
+            r=mut1
+        else:
+            r=np.random.normal(loc=mut1,scale=mut2) #normal distribution
+    elif distr_mut=="uniform":
+        r=(mut2-mut1)*np.random.rand()+mut1 #uniform distribution between mut1 and mut2
+        if r<=0:
+            raise Exception("Check boundaries for mutation rate!")
+    else:
+        raise Exception("Specify initial distribution for mu!")
+    rand_genes=np.append(rand_genes,r)  #append mutation rate at end of rand_genes
     return rand_genes
 
 cdef inline double randnum():
