@@ -50,7 +50,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
     #print(genes) 
 
     for a,animal in enumerate(animals):
-        genes[a]["M"]=animal.mismatch  #add mismatch for plotting later
+        genes[a]["M"]=animal.mismatch/10  #add mismatch for plotting later
     n= len(genes)
     data = pd.DataFrame(genes)
     mean = pd.DataFrame(data.mean()).transpose()   

@@ -24,21 +24,21 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,100,"number of generations per run"), #default
+        ("generations",int,50000,"number of generations per run"), #default
             ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
         ("q",float,3,"controls expected number of offspring in variable scenario"), #2.2
-        ("mutation",str,["normal","0.001","0.0","0.001"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
+        ("mutation",str,["normal","0.001","0.0","0.0001"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
         the last value is the standard deviation for the mutation of this gene"), #0.001
         ("environments",float,[0.5,1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,"","displayed name of each environment"),
         ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
-        ("limit",str,["m","ma","h","a","s"],"names of genes that should be limited to [0,1]"),
-        ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int,5,"detailed output is plotted every N generations (0 = never)"),
+        ("limit",str,["h","a","s"],"names of genes that should be limited to [0,1]"),
+        ("populations",int,5,"number of identical populations per run"), 
+        ("plot_every",int,100,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("random_choice",bool,True,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),

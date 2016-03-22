@@ -168,7 +168,9 @@ if __name__ == '__main__':
                 f3.write(str(g))
             f3.write(","+str(a.mismatch))
             f3.write("\n") 
+        f3.close()
     # plot average genes of ALL populations run (always last generation)
+
 
     plt.figure()
     average = pd.concat(means)
@@ -181,7 +183,14 @@ if __name__ == '__main__':
     plt.ylabel("Average values")
     plt.savefig(path+"total_average_env_.pdf",bbox_inches='tight')
     plt.close()
+    mean = pd.DataFrame(average.mean()).transpose()   
+    std = pd.DataFrame(average.std()).transpose()
 
+    f4 = open(path+"final_genes.csv",'w')
+    mean.to_csv(f4, header=True, index=False, line_terminator='\n')
+    #f4.write("\n")
+    std.to_csv(f4, header=False, index=False, line_terminator='\n')
+    f4.close()
     if error_occured:
         warnings.warn("At least one population died out and was repeated!")
 
