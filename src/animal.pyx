@@ -155,43 +155,18 @@ cdef class Animal:
             self.set_genes(genes)
 
     cdef set_genes(self,np.ndarray[double,ndim=1] genes):
-        """Checks every single gene if it is being limited or not. This may look messy, but is much faster than any loop implementation."""
+        """Sets genes and prevents mutation of them out of the respective sensible interval """
 
-        if not ("h" in self._constants["limit"]):
-            self.h = genes[0]
-        else:
-            self.h = c_max(0,c_min(1,genes[0]))
-
-        if not ("s" in self._constants["limit"]):
-            self.s = genes[1]
-        else:
+        self.h = c_max(0,c_min(1,genes[0]))
+        if not constants["force_plast"]:
             self.s = c_max(0,c_min(1,genes[1]))
-
-        if not ("a" in self._constants["limit"]):
-            self.a = genes[2]
         else:
-            self.a = c_max(0,c_min(1,genes[2]))
-    
-        if not ("I0" in self._constants["limit"]):
-            self.I0 = genes[3]
-        else:
-            self.I0 = c_max(0,c_min(1,genes[3]))
-    
-        if not ("I0p" in self._constants["limit"]):
-            self.I0p = genes[4]
-        else:
-            self.I0p = c_max(0,c_min(1,genes[4]))
-    
-        if not ("b" in self._constants["limit"]):
-            self.b = genes[5]
-        else:
-            self.b = c_max(0,c_min(1,genes[5]))
-    
-        if not ("bp" in self._constants["limit"]):
-            self.bp = genes[6]
-        else:
-            self.bp = c_max(0,c_min(1,genes[6]))
-     
+            self.s = c_max(0.501,c_min(1,genes[1])) #forces plasticity s>0.5
+        self.a = c_max(0,c_min(1,genes[2]))    
+        self.I0 = genes[3]
+        self.I0p = genes[4]
+        self.b = genes[5]
+        self.bp = genes[6]
         self.mu = c_max(0,c_min(1,genes[7]))  
     
 
@@ -205,8 +180,12 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     cdef str distr_mut
     cdef double mut1,mut2
     rand_numbers = np.array([randnum() for _ in np.arange(7)])
- 
-    rand_genes = [0,1,1,2,2,4,4]*rand_numbers+[1,0,0,-1,-1,-2,-2]
+    s1=1 #values for plasticity trait
+    s2=0
+    if constants["force_plast"]: #to force s in [0.5,1]
+        s1=0.5
+        s2=0.5
+    rand_genes = [0,s1,1,2,2,4,4]*rand_numbers+[1,s2,0,-1,-1,-2,-2]
 
     if (rand_genes[1]<=0.5):
         rand_genes[2], rand_genes[5], rand_genes[6]  = 0, 0, 0
@@ -216,7 +195,7 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     mut2=float(constants["mutation"][2])
     if distr_mut=="normal":
         if mut2==0:
-            r=mut1
+            r=mut1 #all animals get same initial mu
         else:
             r=np.random.normal(loc=mut1,scale=mut2) #normal distribution
     elif distr_mut=="uniform":

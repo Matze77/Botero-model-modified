@@ -77,8 +77,8 @@ if __name__ == '__main__':
     p.close()
     # write simulation parameters
     f = open(path+"parameters.txt","w")
-    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','km','limit','populations','plot_every','verbose',\
-'random_choice','std_min','lineage_stop','desc','trans','path','use_pop']:
+    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','km','populations','plot_every','verbose',\
+'random_choice','std_min','lineage_stop','desc','force_plast','trans','path','use_pop']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
 
