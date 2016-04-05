@@ -37,7 +37,7 @@ _PARAMETERS = [
         ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
         ("km",float,0.2,"cost of migration"), #0.2
         ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int,5,"detailed output is plotted every N generations (0 = never)"),
+        ("plot_every",int,0,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("random_choice",bool,True,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
@@ -94,16 +94,13 @@ for key in ["R","P","A","B","O"]:
 
 # Store all read arguments in a dict
 args = parser.parse_args().__dict__
-print(args)
 # Update model_constants object with read parameters
 for key in _PARAMETERS:   
     if args[key[0]] or args[key[0]]==0:
-        print(args[key[0]])
         if key[0] in['environments',"mutation"]:
             val=args[key[0]][0]
         else:      
             val=args[key[0]]
-        print(val)
         model_constants.change_constant(key[0],val)
 for i,key in enumerate(["R","P","A","B","O"]):
     environments = model_constants["environments"]
