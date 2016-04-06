@@ -79,12 +79,14 @@ if __name__ == '__main__':
         with open(f_mean) as f:
             reader = csv.reader(f,delimiter=",")
             for (i,row) in enumerate(reader):
-                if row:
+                if row and row[0]!="":
                     if row[0]=="n":
-                        data = np.genfromtxt(f_mean,skip_header=i+1,delimiter=",") #reads mean genes and n , nperPos from csv file
+                        data = np.genfromtxt(f_mean,skip_header=i+1,delimiter=",") #reads mean genes and n , nperPos from csv 
                         break
                     elif (row[0][0]!="R"): 
-                        environment=list(map(float,row))  #reads environment values 
+                        e=row[:5]
+                        environment=list(map(float,e))  #reads environment values 
+                        
         if constants["trans"]:
             factor=constants["environments"][0]/environment[0] #to ensure that environment value E is continous (no jump from constant run)
         else:
@@ -101,7 +103,7 @@ if __name__ == '__main__':
             std=np.delete(std,3,1) #delete mismatch
         if len(data[0])==11:
             data=np.delete(data,(3,10),1) #delete mismatch,lineage
-            std=np.delete(std,(3,10),1) #delete mismatch,lineage
+           # std=np.delete(std,(3,10),1) #delete mismatch,lineage
         elif len(data[0])==12: #for files with lineage as last entry    
             data=np.delete(data,(1,8,9),1) #delete environment,m ,ma
             std=np.delete(std,(1,8,9),1) #delete environment,m ,ma
@@ -114,7 +116,6 @@ if __name__ == '__main__':
         mean_genes = data[-1,1:-1]  #just last row, that is last generation. All genes, cut off generation and size 
         std_genes = std[-1,1:-1] #std of genes from last generation
         std_genes = np.fabs(std_genes) #gives absolute value  
-     
     # create environments and output information about them
 
     if constants["trans"]: #for transition runs, change environment parameters in constants file
@@ -140,7 +141,7 @@ if __name__ == '__main__':
     else:
         f3.write("Mean genes(h,s,a,I0,I0p,b,bp,mu):\n{0}\n".format(mean_genes))
 
-    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','km','populations','plot_every','verbose',\
+    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','populations','plot_every','verbose',\
 'random_choice','std_min','lineage_stop','desc','force_plast','trans','path','use_pop']:
         f3.write("{0}:\t{1}\n".format(key,constants[key]))
     
