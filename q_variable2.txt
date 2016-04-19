@@ -1,0 +1,3 @@
+ --path /Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.1/R=1/  --populations 20   --P 0.1 --R 32 --mutation normal 0.001 0.0 0.001 --desc CBH_DBH_2.7 --q 2.7
+ --path /Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.1/R=1/  --populations 20   --P 0.1 --R 32 --mutation normal 0.001 0.0 0.001 --desc CBH_DBH_3.0 --q 3.0
+  --path /Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R=100/P=0.1/ --populations 20  --P 0.1 --R 1000 --mutation normal 0.001 0.0 0.001 --desc DBH_AT_3.0 --q 3.0

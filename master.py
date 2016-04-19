@@ -5,11 +5,10 @@ Created on Tue Apr  5 10:42:59 2016
 @author: matthias
 """
 import os
-import time
 
 file="main_variable.py"
 path= "/Users/matthias/Documents/popdyn/botero-model/single_runs/"
-with open(path+"tau_variable.txt","r") as f:
+with open(path+"q_variable2.txt","r") as f:
     line=f.readline()
     while line:
         print(line)

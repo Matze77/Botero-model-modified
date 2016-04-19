@@ -122,6 +122,7 @@ cdef class Animal:
             if (r<=self.mu):
                 mutation_step = np.random.normal(loc=0,scale=scale_mu)  #mutate mutation rate with much lower step size
                 new_genes[7] += mutation_step
+                self.mu=new_genes[7]
         for k in [0,1,3,4]: #genes modified for all individuals: h, s, I0, I0'
             r = randnum()
             if (r<=self.mu):
