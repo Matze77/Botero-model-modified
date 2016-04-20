@@ -22,7 +22,7 @@ sys.path.insert(0, './src')
 #
 # Import third-party packages
 #
-
+from multiprocessing import Process,Pool
 import numpy as np # For efficient array operations
 import math
 import matplotlib.pyplot as plt # For plotting
@@ -68,6 +68,8 @@ if __name__ == '__main__':
     try: 
         os.makedirs(path)
         os.makedirs(path+"timeseries/")
+        if constants["save_all"]:
+                os.makedirs(path+"all_genes/")
     except OSError:
         if not os.path.isdir(path):
             raise
@@ -107,71 +109,102 @@ if __name__ == '__main__':
 
 
     # main loop over multiple populations
-    means, stds = [], []
     error_occured = False
-    for k in range(constants["populations"]):
-        start = time.clock()
-       
-        # in case a population dies out, it is repeated
-        repeat = True
-        animal_list=[]
-        while repeat:             
-                # create animals in each environment according to environment_sizes that already have the correct random genes
-            animal_list.extend([Animal(np.array([]),lineage=_) for _ in range(constants["environment_sizes"])]) #if only one value is given
-            # create a Population from animal_list
-#            for a in animal_list:
-#                print(a.genes)
-            population = Population(population_size,animal_list)
-
+    
+    rand1=np.random.randint(0,10**3) #different random number seed for every time the program is started
+    def main(k):
+            np.random.seed(rand1+k) #to prevent the same seeds for simultaneously run populations 
+            start = time.clock()         
+            # in case a population dies out, it is repeated
+            repeat = True
+            animal_list=[]
+            while repeat:             
+                    # create animals in each environment according to environment_sizes that already have the correct random genes
+                animal_list.extend([Animal(np.array([]),lineage=_) for _ in range(constants["environment_sizes"])]) #if only one value is given
+                # create a Population from animal_list
+    #            for a in animal_list:
+    #                print(a.genes)
+                population = Population(population_size,animal_list)
+    
+                end = time.clock()
+                if constants["verbose"]:
+                    print("Set-up time: {0:.2e}s\n".format(end-start))
+                start = time.clock()
+    
+                # initial output
+                f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
+                f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')            
+                f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
+                f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
+    
+                f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
+                f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
+                        
+                # iterate on the population and create outputs
+                try:
+                    #%timeit iterate_population(k,population,environments,f1,f2,path)
+                    pop_mean, pop_std, _ = iterate_population(k,population,env,f1,f2,path) #create plots and return values for last generation
+                    repeat = False #if pop dies out no error occurs?
+                except RuntimeError:
+                    error_occured = True
+                    pass
+    
+    
             end = time.clock()
             if constants["verbose"]:
-                print("Set-up time: {0:.2e}s\n".format(end-start))
-            start = time.clock()
+                print("\n---------------------------------------")
+                print(" Population {0} done! Total time: {1:.4f} min".format(k+1,(end-start)/60))
+                print("---------------------------------------\n")
+            else:
+                sys.stdout.write("\n\tDone! Total time: {0:.4f} min\n".format((end-start)/60))
+    
+            plt.close('all')
 
-            # initial output
-            f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-            f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')            
-            f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
-            f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
+            f3 = open(path+"pop"+str(k+1)+"_final_state.csv",'w')
+            f3.write("h,s,a,I0,I0p,b,bp,mu,mismatch\n")
+            for a in population.animals():
+                for i,g in enumerate(a.genes):
+                    if i!=0:
+                        f3.write(",") 
+                    f3.write(str(g))
+                f3.write(","+str(a.mismatch))
+                f3.write("\n") 
+            f3.close()
+            
+            return pop_mean,pop_std
+        # plot average genes of ALL populations run (always last generation)
 
-            f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
-            f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
-                    
-            # iterate on the population and create outputs
-            try:
-                #%timeit iterate_population(k,population,environments,f1,f2,path)
-                pop_mean, pop_std, _ = iterate_population(k,population,env,f1,f2,path) #create plots and return values for last generation
-                repeat = False #if pop dies out no error occurs?
-            except RuntimeError:
-                error_occured = True
-                pass
-
-
-        end = time.clock()
-        if constants["verbose"]:
-            print("\n---------------------------------------")
-            print(" Population {0} done! Total time: {1:.4f} min".format(k+1,(end-start)/60))
-            print("---------------------------------------\n")
-        else:
-            print("\n\tDone! Total time: {0:.4f} min\n".format((end-start)/60))
-
-        plt.close('all')
-
-        means.append(pop_mean)
-        stds.append(pop_std)
-        f3 = open(path+"pop"+str(k+1)+"_final_state.csv",'w')
-        f3.write("h,s,a,I0,I0p,b,bp,mu,mismatch\n")
-        for a in population.animals():
-            for i,g in enumerate(a.genes):
-                if i!=0:
-                    f3.write(",") 
-                f3.write(str(g))
-            f3.write(","+str(a.mismatch))
-            f3.write("\n") 
-        f3.close()
-    # plot average genes of ALL populations run (always last generation)
-
-
+    p=constants["proc"]
+    
+    '''Create list of lists of p elements to be used as arguments (population number) in pool.map '''
+    list1=[]
+    list2=[] 
+    for k in range(constants["populations"]):
+        list2.append(k)
+        if (k % p)==p-1:
+            list1.append(list2)
+            list2=[]
+    list1.append(list2)
+    
+    '''Run proc number of populations simultaneously'''
+    
+    a=[]
+    for l in list1:
+        if len(l)!=0:
+            pool=Pool(processes=len(l))
+            a.extend(pool.map(main,l))    
+            pool.terminate()
+     
+     
+    '''Create final plots and outputs'''
+    
+    means=[]
+    stds=[]
+    for i in a:
+        means.append(i[0])
+        stds.append(i[1])
+        
+    
     plt.figure()
     average = pd.concat(means)
     if have_seaborn:
@@ -181,7 +214,7 @@ if __name__ == '__main__':
     plt.ylim(-2,2)
     plt.xlabel("Genes")
     plt.ylabel("Average values")
-    plt.savefig(path+"total_average_env_.pdf",bbox_inches='tight')
+    plt.savefig(path+"total_average.pdf",bbox_inches='tight')
     plt.close()
     mean = pd.DataFrame(average.mean()).transpose()   
     std = pd.DataFrame(average.std()).transpose()
@@ -195,3 +228,4 @@ if __name__ == '__main__':
         warnings.warn("At least one population died out and was repeated!")
 
     
+#    

@@ -51,11 +51,12 @@ cdef class Animal:
     # properties of Animal, typed as C variables for speed
     cdef object _constants
     cdef double h,s,a,I0,I0p,b,bp,mu
-    cdef int adjustments
-    cdef double insulation
+
     cdef bool newborn
     cdef bool primed
     # public keyword makes the variable accessible to python
+    cdef public int adjustments
+    cdef public double insulation
     cdef public double mismatch
     cdef public int lineage
 

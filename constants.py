@@ -24,7 +24,7 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,300,"number of generations per run"), #default
+        ("generations",int,10,"number of generations per run"), #default
             ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
@@ -35,18 +35,20 @@ _PARAMETERS = [
         ("environments",float,[1000,0.5,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,"","displayed name of each environment"),
         ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
-        ("populations",int,20,"number of identical populations per run"), 
-        ("plot_every",int,5,"detailed output is plotted every N generations (0 = never)"),
+        ("populations",int,1,"number of identical populations per run"), 
+        ("plot_every",int,0,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("random_choice",bool,False,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
         ("lineage_stop",bool,False,"Stop if all animas are related to each other (common ancestor)"),
-        ("desc",str,"R10000_P0.5","Description of the run appended to the path"),
+        ("desc",str,"AT","Description of the run appended to the path"),
         ("force_plast",bool,False,"Forces animals to use plastic strategy"),
-        ("save_all",bool,False,"Saves all animals' genes for each generation"),
+        ("save_all",bool,True,"Saves all animals' genes for each generation"),
+        ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
+        ("format",str,"png","Format of the figures in timeseries (png or pdf)"),
 #for variable runs: 
         ("trans",bool,True,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.5/R=10000/","set path for genes to use, if empty: path.txt is used"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.5/R=32/","set path for genes to use, if empty: path.txt is used"),
         ("use_pop",int,1,"which of the populations to use for mean_genes")
 
 ]

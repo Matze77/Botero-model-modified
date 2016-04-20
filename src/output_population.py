@@ -74,7 +74,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
     f1.write("\n")
     f2.write("\n")
 
-    filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j)+'.pdf'
+    filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j)+'.'+constants["format"]
     if force_plot:
         plot_situation(t,data,n,env,filename,sizes,times,variable)
     elif constants["plot_every"] > 0:

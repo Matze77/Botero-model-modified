@@ -55,10 +55,26 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 
             t = t+1
         output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
+                
+        if constants["save_all"]:
+            f3 = open(path+"all_genes/"+"gen"+str(j)+".csv",'w')
+            f3.write("h,s,a,I0,I0p,b,bp,mu,M,I,A,lin\n")
+            for a in population.animals():
+                for i,g in enumerate(a.genes):
+                    if i!=0:
+                        f3.write(",") 
+                    f3.write(str(g))
+                f3.write(","+str(a.mismatch))
+                f3.write(","+str(a.insulation))
+                f3.write(","+str(a.adjustments))
+                f3.write(","+str(a.lineage))            
+                f3.write("\n") 
+            f3.close()
+        
         if variable:
-            d=population.breed_variable() #old generation is replaced by new one
+            population.breed_variable() #old generation is replaced by new one
         else:
-            d=population.breed_constant()
+            population.breed_constant()
                 
         sizes.append(population._size)
         times.append(t)
@@ -81,7 +97,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         hashes = '#' * int(round(percent * 20))
         spaces = ' ' * (20 - len(hashes))
         sys.stdout.write("\rProgress population {2} of {3}: [{0}] {1:.1f}%".format(hashes + spaces, percent * 100,k+1,constants["populations"]))
-        sys.stdout.flush()     
+        sys.stdout.flush()                             
         stop=False
         std_min=constants["std_min"]
         if len(std_min)!=0 and std_min:
