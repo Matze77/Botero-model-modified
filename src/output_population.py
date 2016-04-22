@@ -53,7 +53,9 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
         genes[a]["M"]=animal.mismatch/10  #add mismatch for plotting later
     n= len(genes)
     data = pd.DataFrame(genes)
-    mean = pd.DataFrame(data.mean()).transpose()   
+    mean = pd.DataFrame(data.mean())
+    mean[0]["s"]=data["s"].median() #use median instead of mean for gene s
+    mean=mean.transpose()   
     std = pd.DataFrame(data.std()).transpose()
    
 

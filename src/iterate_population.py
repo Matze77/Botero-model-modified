@@ -85,14 +85,14 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 #        else: 
 #            D0.append(d)
         if population.size() == 0:
-            print("Population died out!\n\n")
+            #print("Population died out!\n\n")
             break
         population.react(E,C,1)   #all plastic animals react
         end = time.clock()
         if constants["verbose"]:
             print("Computation time: {0:.2e}s".format(end-start))
 
-	    # Print progress bar
+	     #Print progress bar
         percent = float(j) / constants["generations"]
         hashes = '#' * int(round(percent * 20))
         spaces = ' ' * (20 - len(hashes))

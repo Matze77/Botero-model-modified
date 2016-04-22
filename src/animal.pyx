@@ -90,6 +90,7 @@ cdef class Animal:
                     self.primed=False
                 else:
                     self.primed=True
+                    self.insulation=self.I0p
                 self.newborn=False
         r = randnum() #adaption
         if (((r <= self.a) | evolve_all) and self.s > 0.5 ): #draws random number to determine whether the animal adjusts its insulation (just for plastic ones)
@@ -172,7 +173,10 @@ cdef class Animal:
         self.mu = c_max(0,c_min(1,genes[7]))  
     
 
+
+
 # PROTECTED FUNCTIONS
+
 
 
 cdef inline np.ndarray[double,ndim=1] random_genes():
@@ -212,4 +216,5 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
 cdef inline double randnum():
     """Returns random numbers at C speed"""
     return np.random.rand()    
+    
     #return c_rand() / float(RAND_MAX)

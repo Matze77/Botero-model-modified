@@ -151,13 +151,7 @@ if __name__ == '__main__':
     
     
             end = time.clock()
-            if constants["verbose"]:
-                print("\n---------------------------------------")
-                print(" Population {0} done! Total time: {1:.4f} min".format(k+1,(end-start)/60))
-                print("---------------------------------------\n")
-            else:
-                sys.stdout.write("\n\tDone! Total time: {0:.4f} min\n".format((end-start)/60))
-    
+            print(" Population {0} done! Total time: {1:.4f} min".format(k+1,(end-start)/60))
             plt.close('all')
 
             f3 = open(path+"pop"+str(k+1)+"_final_state.csv",'w')
@@ -176,26 +170,31 @@ if __name__ == '__main__':
 
     p=constants["proc"]
     
-    '''Create list of lists of p elements to be used as arguments (population number) in pool.map '''
-    list1=[]
-    list2=[] 
-    for k in range(constants["populations"]):
-        list2.append(k)
-        if (k % p)==p-1:
-            list1.append(list2)
-            list2=[]
-    list1.append(list2)
-    
+
     '''Run proc number of populations simultaneously'''
-    
-    a=[]
-    for l in list1:
-        if len(l)!=0:
-            pool=Pool(processes=len(l))
-            a.extend(pool.map(main,l))    
-            pool.terminate()
-     
-     
+    if p>1:
+        '''Create list of lists of p elements to be used as arguments (population number) in pool.map '''
+        list1=[]
+        list2=[] 
+        for k in range(constants["populations"]):
+            list2.append(k)
+            if (k % p)==p-1:
+                list1.append(list2)
+                list2=[]
+        list1.append(list2)
+        
+        a=[]
+        for l in list1:
+            if len(l)!=0:
+                pool=Pool(processes=len(l))
+                a.extend(pool.map(main,l))    
+                pool.terminate()
+         
+    else:
+        a=[]
+        for k in range(constants["populations"]):
+             a.append(main(k))
+                 
     '''Create final plots and outputs'''
     
     means=[]

@@ -22,7 +22,7 @@ sys.path.insert(0, './src')
 #
 # Import third-party packages
 #
-
+from multiprocessing import Process,Pool
 import numpy as np # For efficient array operations
 #import matplotlib.pyplot as plt # For plotting
 import time # For timing parts of the script, optimizing run time
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         else:
             factor=1
         final_t = data[-1,0]*constants["L"]*factor
-        size=data[-1,-1]  
+        size=int(data[-1,-1])
         data2 = np.genfromtxt(final_state,skip_header=1,delimiter=",") #reads genes and n , nperPos from csv file of the whole final population if available
         genes=data2[:,:-1]
         mean_genes=np.mean(genes,axis=0)
@@ -150,12 +150,16 @@ if __name__ == '__main__':
     end = time.clock()
     if constants["verbose"]:
         print("Set-up time: {0:.2e}s\n".format(end-start))
-    start = time.clock()
+
 
     # main loop over multiple populations
     survival_rate = 0
-    for k in range(constants["populations"]):
-        # write starting genes in files
+    rand1=np.random.randint(0,10**3) #different random number seed for every time the program is started
+    
+    def main(k):
+        start = time.clock()
+        np.random.seed(rand1+k) #to prevent the same seeds for simultaneously run populations 
+            # write starting genes in files
 
         f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
         f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,size,lin\n")        
@@ -181,26 +185,47 @@ if __name__ == '__main__':
         # create a population of population_size animals that have the correct mean genes
         population = Population(population_size,animals)
         
-
-        f3.write("Population {0}".format(k+1))
         pop_mean, pop_std, final_gen = iterate_population(k,population,env,f1,f2,path,final_t,True) #start at final time of constant pop run
         end = time.clock()
 
 
         if population.size()==0:
-            if not constants["verbose"]:
-                print("\n\tDied out! Total time: {0:.2f} min\n".format((end-start)/60)) 
-            f3.write(" died at generation {0}!\n".format(final_gen))
+            print("\t Population {0} died out! Time needed: {1:.2f} min".format(k,(end-start)/60)) 
+            return False,final_gen
         else:
-            if not constants["verbose"]:
-                print("\n\tSurvived! Total time: {0:.2f} min\n".format((end-start)/60)) 
-            survival_rate = survival_rate+1
-            f3.write(" survived!\n")
+            print("\t Population {0} survived! Time needed: {1:.2f} min".format(k,(end-start)/60))
+            return True,final_gen
 
-        if constants["verbose"]:
-            print("\n---------------------------------------")
-            print(" Population {0} done! Total time: {1:.2f} min".format(k+1,(end-start)/60))
-            print("---------------------------------------\n")
+    
+    p=constants["proc"]
+    
+    '''Create list of lists of p elements to be used as arguments (population number) in pool.map '''
+    list1=[]
+    list2=[] 
+    for k in range(constants["populations"]):
+        list2.append(k)
+        if (k % p)==p-1:
+            list1.append(list2)
+            list2=[]
+    list1.append(list2)
+    
+    '''Run proc number of populations simultaneously'''    
 
+    a=[]
+    for l in list1:
+        if len(l)!=0:
+            pool=Pool(processes=len(l))
+            a.extend(pool.map(main,l))
+            pool.terminate()
+      
+    survival_rate=0
+    for i,out in enumerate(a):
+        if out[0]:
+            survival_rate+=1
+            f3.write("Population {0} survived!\n".format(i+1))
+        else:
+            f3.write("Population {0} died at generation {1}!\n".format(i+1,out[1]))
+            
+            
     f3.write("\n\nIn total, {0}/{1} Populations survived.".format(survival_rate,constants["populations"]))
     f3.close()
