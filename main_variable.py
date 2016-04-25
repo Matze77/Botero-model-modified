@@ -92,10 +92,10 @@ if __name__ == '__main__':
         else:
             factor=1
         final_t = data[-1,0]*constants["L"]*factor
-        size=int(data[-1,-1])
+        size=int(data[-1,-2])
         data2 = np.genfromtxt(final_state,skip_header=1,delimiter=",") #reads genes and n , nperPos from csv file of the whole final population if available
-        genes=data2[:,:-1]
-        mean_genes=np.mean(genes,axis=0)
+        genes1=data2[:,:-1]
+        mean_genes=np.mean(genes1,axis=0)
         approx=False                
     except:    #if file for whole population does not exist, use mean values
         std = np.genfromtxt(f_std,skip_header=i+1,delimiter=",")
@@ -180,7 +180,7 @@ if __name__ == '__main__':
                     genes.append(mean_genes[j]*np.ones(size))
             animals.append([Animal(np.array(g),lineage=k) for k,g in enumerate(zip(*genes))])# create animals with genes in environment i
         else:
-            animals.append([Animal(np.array(g),lineage=k) for k,g in enumerate(genes)])
+            animals.append([Animal(np.array(g),lineage=k) for k,g in enumerate(genes1)])
         animals = [item for sublist in animals for item in sublist] # flatten animal list 
         # create a population of population_size animals that have the correct mean genes
         population = Population(population_size,animals)
@@ -198,26 +198,30 @@ if __name__ == '__main__':
 
     
     p=constants["proc"]
-    
-    '''Create list of lists of p elements to be used as arguments (population number) in pool.map '''
-    list1=[]
-    list2=[] 
-    for k in range(constants["populations"]):
-        list2.append(k)
-        if (k % p)==p-1:
-            list1.append(list2)
-            list2=[]
-    list1.append(list2)
-    
-    '''Run proc number of populations simultaneously'''    
-
-    a=[]
-    for l in list1:
-        if len(l)!=0:
-            pool=Pool(processes=len(l))
-            a.extend(pool.map(main,l))
-            pool.terminate()
-      
+    if p>1:
+        '''Create list of lists of p elements to be used as arguments (population number) in pool.map '''
+        list1=[]
+        list2=[] 
+        for k in range(constants["populations"]):
+            list2.append(k)
+            if (k % p)==p-1:
+                list1.append(list2)
+                list2=[]
+        list1.append(list2)
+        
+        '''Run proc number of populations simultaneously'''    
+        a=[]
+        for l in list1:
+            if len(l)!=0:
+                pool=Pool(processes=len(l))
+                a.extend(pool.map(main,l))
+                pool.terminate()
+                
+    else:
+        a=[]
+        for k in range(constants["populations"]):
+             a.append(main(k))
+                   
     survival_rate=0
     for i,out in enumerate(a):
         if out[0]:

@@ -1,2 +1,0 @@
---environments 316.23 0.15 1 0 0 --desc R316.23_P0.15 --plot_every 0 --populations 5 --generations 10000 --force_plast
---environments 316.23 0.4 1 0 0 --desc R316.23_P0.4 --plot_every 0 --populations 5 --generations 10000 --force_plast

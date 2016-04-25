@@ -1,4 +1,0 @@
---environments 0.4 0.37 1 0 0 --desc R0.40_P0.37 --plot_every 0 --populations 5 --generations 5000 --mutation normal 0.001 0.0 0.0
---environments 0.4 0.38 1 0 0 --desc R0.40_P0.38 --plot_every 0 --populations 5 --generations 5000 --mutation normal 0.001 0.0 0.0
---environments 0.4 0.39 1 0 0 --desc R0.40_P0.39 --plot_every 0 --populations 5 --generations 5000 --mutation normal 0.001 0.0 0.0
---environments 0.4 0.40 1 0 0 --desc R0.40_P0.40 --plot_every 0 --populations 5 --generations 5000 --mutation normal 0.001 0.0 0.0

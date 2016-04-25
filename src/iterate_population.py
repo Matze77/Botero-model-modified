@@ -57,7 +57,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
                 
         if constants["save_all"]:
-            f3 = open(path+"all_genes/"+"gen"+str(j)+".csv",'w')
+            f3 = open(path+"all_genes/pop{0}_gen{1}.csv".format(k,j),'w')
             f3.write("h,s,a,I0,I0p,b,bp,mu,M,I,A,lin\n")
             for a in population.animals():
                 for i,g in enumerate(a.genes):
