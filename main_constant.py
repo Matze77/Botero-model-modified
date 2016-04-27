@@ -50,7 +50,7 @@ from constants import model_constants
 from iterate_population import iterate_population
 
 
-path=str()
+
 if __name__ == '__main__':
     # Get model constants
     constants = model_constants

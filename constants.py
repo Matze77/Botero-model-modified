@@ -25,7 +25,7 @@
 
 _PARAMETERS = [
         ("generations",int,10,"number of generations per run"), #default
-            ("L",int,5,"life time of each animal in time steps"), # 5
+        ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
@@ -44,11 +44,11 @@ _PARAMETERS = [
         ("desc",str,"AT","Description of the run appended to the path"),
         ("force_plast",bool,False,"Forces animals to use plastic strategy"),
         ("save_all",bool,False,"Saves all animals' genes for each generation"),
-        ("proc",int,4,"Number of processes (populations) that are executed at the same time"),
-        ("format",str,"png","Format of the figures in timeseries (png or pdf)"),
+        ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
+        ("format",str,"pdf","Format of the figures in timeseries (png or pdf)"),
 #for variable runs: 
-        ("trans",bool,False,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.5/R6.49_P0.50/","set path for genes to use, if empty: path.txt is used"),
+        ("trans",bool,True,"if true, use these (changed) constants, if false, use the ones from the file"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.5/R0.32_P0.50/","set path for genes to use, if empty: path.txt is used"),
         ("use_pop",int,1,"which of the populations to use for mean_genes")
 
 ]

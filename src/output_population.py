@@ -79,7 +79,6 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
         dtype="png"
     else:
         dtype=constants["format"]
-    print(dtype)
     filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j)+'.'+dtype
     if force_plot:
         plot_situation(t,data,n,env,filename,sizes,times,variable)
@@ -165,5 +164,10 @@ def plot_size(path,fi,k): #plots the number of animals in each environment for e
     plt.ylim(0,constants["environment_sizes"]+200)
     plt.xlabel("Generation")
     plt.ylabel("Number of individuals")
-    plt.savefig(str(path)+"sizes_"+str(int(k)+1)+".pdf",bbox_inches='tight')
+    
+    if constants["proc"]>1:
+        dtype="png"
+    else:
+        dtype=constants["format"]
+    plt.savefig(str(path)+"sizes_"+str(int(k)+1)+"."+dtype,bbox_inches='tight')
     plt.close()
