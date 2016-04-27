@@ -43,8 +43,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 #    Dm=[]
 #    D0=[]
     sizes=[population._size]
-    times=[t]
-    output_population(population,f1,f2,0,k,path,True,t,environment,sizes,times,variable) #creates plots and csv files
+    output_population(population,f1,f2,0,k,path,True,t,environment,sizes,variable) #creates plots and csv files
     for j in np.arange(1,constants["generations"]+1):  
         # MAIN TIME STEP LOOP
         start = time.clock()    
@@ -54,19 +53,21 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
             population.react(E,C) #animals react to environment
 
             t = t+1
-        output_population(population,f1,f2,j,k,path,False,t,environment,sizes,times,variable) #creates plots and csv files
+        output_population(population,f1,f2,j,k,path,False,t,environment,sizes,variable) #creates plots and csv files
                 
         if constants["save_all"]:
             f3 = open(path+"all_genes/pop{0}_gen{1}.csv".format(k,j),'w')
-            f3.write("h,s,a,I0,I0p,b,bp,mu,t,ta,M,I,A,lin\n")
+            f3.write("h,s,a,I0,I0p,b,bp,mu,t,ta,M,W,I,A,T,lin\n")
             for a in population.animals():
                 for i,g in enumerate(a.genes):
                     if i!=0:
                         f3.write(",") 
                     f3.write(str(g))
                 f3.write(","+str(a.mismatch))
+                f3.write(","+str(a.lifetime_payoff()))
                 f3.write(","+str(a.insulation))
                 f3.write(","+str(a.adjustments))
+                f3.write(","+str(a.transfers))
                 f3.write(","+str(a.lineage))            
                 f3.write("\n") 
             f3.close()
@@ -77,7 +78,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
             population.breed_constant()
                 
         sizes.append(population._size)
-        times.append(t)
+        
 #        if d>0:
 #            Dp.append(d)
 #        elif d<0:
@@ -119,7 +120,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 
 
     # Final outputs for each population
-    final_mean, final_std = output_population(population,f1,f2,j,k,path,True,t,environment,sizes,times,variable) #force last plot
+    final_mean, final_std = output_population(population,f1,f2,j,k,path,True,t,environment,sizes,variable) #force last plot
     f1.close()
     f2.close()
     if  variable:

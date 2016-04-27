@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # write simulation parameters
     f = open(path+"parameters.txt","w")
     for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','populations',\
-'random_choice','std_min','lineage_stop','force_plast',"proc",'hgt','trans','path','use_pop']:
+'random_choice','std_min','lineage_stop','force_plast',"proc",'hgt','check','kh','kt','trans','path','use_pop']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
 
@@ -155,13 +155,13 @@ if __name__ == '__main__':
             plt.close('all')
 
             f3 = open(path+"pop"+str(k+1)+"_final_state.csv",'w')
-            f3.write("h,s,a,I0,I0p,b,bp,mu,t,ta,mismatch\n")
+            f3.write("h,s,a,I0,I0p,b,bp,mu,t,ta,W\n")
             for a in population.animals():
                 for i,g in enumerate(a.genes):
                     if i!=0:
                         f3.write(",") 
                     f3.write(str(g))
-                f3.write(","+str(a.mismatch))
+                f3.write(","+str(a.lifetime_payoff()))
                 f3.write("\n") 
             f3.close()
             

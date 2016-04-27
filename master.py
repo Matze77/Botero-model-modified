@@ -9,7 +9,7 @@ from multiprocessing import Pool
 
 p=4
 file="main_constant.py"
-path= "/Users/matthias/Documents/popdyn/botero-model/single_runs/"
+path= "/Users/matthias/Documents/popdyn/botero-model/fair_stop/"
 
 def run(line):
         c="python "+path+file+" "+line
@@ -18,7 +18,7 @@ def run(line):
 
 lines=[]
 
-with open(path+"trans_to_plast_new.txt","r") as f:
+with open(path+"/runs/constant_hgt_test.txt","r") as f:
     line=f.readline()
     lines.append(line)
     while line:

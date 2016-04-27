@@ -52,23 +52,29 @@ class Population:
         r2=np.random.rand(self._size)        
         if self._constants["hgt"]:  
             r3=np.random.rand(self._size)
-            
-        for i,animal in enumerate(self._animals):           
-            if self._constants["hgt"]:            
+            for i,animal in enumerate(self._animals):           
                 if (r3[i] <= animal.ta) and animal.t > 0.5 :
                     j=np.random.randint(0,self._size) #animal from which to choose from
+                    if self._constants["check"]: #Payoff of donor animal is checked (directed HGT)
+                        if self._animals[j].lifetime_payoff()< animal.lifetime_payoff():
+                            animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment 
+                            continue    #stop this iteration if current payoff of donor animal is smaller than for the recipient animal
+                            
                     if float(self._constants["mutation"][3])>0:
                         g=np.random.randint(0,7) #gene to choose 
                     else: 
                         g=np.random.randint(0,6)
-                    gene=self._animals[j].genes[g] #value of this gene (from chosen animal)
-                    #animal.genes[g]=gene #Does this work? Or new method in animal.pyx
+                    gene=self._animals[j].genes[g] #value of this gene (from chosen animal)                
                     genes=animal.genes                    
                     genes[g]=gene                    
                     animal.genes=genes
+                    animal.transfers+=1
                     
-            animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment, possibly migrates               
-
+                animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment               
+        else:
+            for i,animal in enumerate(self._animals):  
+                animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment
+                
     def breed_constant(self):
         """Iterates the entire Population to a new generation, calculating the number of offspring of each Animal with CONSTANT population size"""
         calc_payoff     = np.vectorize(lambda x: x.lifetime_payoff())
@@ -150,7 +156,7 @@ class Population:
                 pf=np.array(payoff_factor)
                 if d>0:#if environment overcrowded let the least fit animals have less offspring
                     mx=np.max(pf)
-                    pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0 or from other environment are selected
+                    pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0 
                     for i in range(d):                         
                         m=np.argmin(pf)
                         offspring[m]-=1

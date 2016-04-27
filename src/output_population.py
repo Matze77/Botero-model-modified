@@ -14,6 +14,7 @@
 """
 
 # Import third-party libraries
+import matplotlib as mpl
 import numpy as np 
 import matplotlib.pyplot as plt 
 import pandas as pd
@@ -26,7 +27,7 @@ try:
     have_seaborn = True
 except ImportError:
     have_seaborn = False
-
+mpl.rcParams["axes.formatter.useoffset"] = False
 # Import other parts of the project
 #from animal import Animal
 #from population import Population
@@ -35,7 +36,7 @@ from constants import model_constants
 constants = model_constants
 zeros=len(str(constants["generations"]))
 #@jit
-def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,variable=False):
+def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,variable=False):
     """
     Outputs state of the Population. Inputs:
         population: instance of Population to be output, 
@@ -51,7 +52,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
     #print(genes) 
 
     for a,animal in enumerate(animals):
-        genes[a]["M"]=animal.mismatch/10  #add mismatch for plotting later
+        genes[a]["W"]=animal.lifetime_payoff() #add mismatch for plotting later
     n= len(genes)
     data = pd.DataFrame(genes)
     mean = pd.DataFrame(data.mean())
@@ -84,32 +85,32 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
         
     filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j).zfill(zeros)+'.'+dtype
     if force_plot:
-        plot_situation(t,data,n,env,filename,sizes,times,variable)
+        plot_situation(j,data,n,env,filename,sizes,variable)
     elif constants["plot_every"] > 0:
         if (j % constants["plot_every"]) == 0: #modulo to plot every n times
-            plot_situation(t,data,n,env,filename,sizes,times,variable)
+            plot_situation(j,data,n,env,filename,sizes,variable)
     elif constants["plot_every"] < 0:
         T=math.ceil(constants["environments"][0]/6)  #if plot_every is set smaller than 0, plot 6 times per environment cycle
         if (j % T) == 0: 
-            plot_situation(t,data,n,env,filename,sizes,times,variable)
+            plot_situation(j,data,n,env,filename,sizes,variable)
     return mean, std
 
 #@jit
-def plot_situation(t,data,n,env,filename,sizes,times,variable=False):
+def plot_situation(j,data,n,env,filename,sizes,variable=False):
     constants = model_constants
     if constants["verbose"]:
         print("\nPlotting ...")
     fsize=12  #fontsize of axis labels and tick labels
     #palette = sns.color_palette("Set2", 4)
-    plt.figure(figsize=(10,14)) #size adjustment to have axis labels visible
+    plt.figure(figsize=(10,18)) #size adjustment to have axis labels visible
     rows=4
     index=0
     if variable:
         rows=5
         index=1
         ax = plt.subplot2grid((rows,1),(0,0))       
-        ax.plot(times,sizes,"-")
-        ax.set_xlim(times[0],t+1)
+        ax.plot(sizes,"-",lw=0.7)
+        ax.set_xlim(0,j+1)
         ax.set_xlabel("Time",fontsize=fsize)
         ax.set_ylim(0,constants["environment_sizes"]+200)
         ax.set_ylabel("Size",fontsize=fsize)
@@ -133,20 +134,19 @@ def plot_situation(t,data,n,env,filename,sizes,times,variable=False):
         plt.tick_params(axis='both', which='both', labelsize=fsize)
         ax1 = plt.subplot2grid((rows,1),(index+2,0),rowspan=2)
         scale = 5*constants["L"]*env.R #5 whole cycles per plot
-        if t <= constants["L"]*constants["generations"]:
+        if j <= constants["L"]*constants["generations"]:
 
-            t0 = np.arange(min(max(0,t-scale/2), np.abs(constants["L"]*constants["generations"]-scale)) ,min(constants["L"]*constants["generations"],max(t+scale/2,scale)),0.01*env.R*constants["L"]) #star always in the middle except at beginning and end
+            j0 = np.arange(min(max(0,j-scale/2), np.abs(constants["L"]*constants["generations"]-scale)) ,min(constants["L"]*constants["generations"],max(j+scale/2,scale)),0.01*env.R*constants["L"]) #star always in the middle except at beginning and end
         else:
-            t0 = np.arange(t-scale/2,t+scale/2,0.01*env.R*constants["L"])
-        ax1.plot(t0,np.array(list(map(env.evaluate,t0)))[:,0],linewidth=0.7) #plot E(t)
-        ax1.scatter(t,env.evaluate(t)[0],s=100,marker='*') #show actual time as *
+            j0 = np.arange(j-scale/2,j+scale/2,0.01*env.R*constants["L"])
+        ax1.plot(j0,np.array(list(map(env.evaluate,j0)))[:,0],linewidth=0.7) #plot E(t)
+        ax1.scatter(j,env.evaluate(j)[0],s=100,marker='*') #show actual time as *
         ax1.set_ylim(-2,2)
-        ax1.set_xlim(t0[0],t0[-1]) 
+        ax1.set_xlim(j0[0],j0[-1]) 
         ax1.set_xlabel("Time t",fontsize=fsize)
         ax1.set_ylabel("E",fontsize=fsize)#labels und überschriften
         plt.tick_params(axis='both', which='both', labelsize=fsize)
-
-    plt.suptitle("The situation at $t = $"+str(t),fontsize=17)
+    plt.suptitle("The situation at generation"+str(j),fontsize=17)
     plt.subplots_adjust(top=0.95)
     plt.savefig(filename)
     plt.close()

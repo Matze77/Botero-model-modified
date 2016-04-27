@@ -37,10 +37,12 @@ ctypedef np.int_t DTYPE_t
 ctypedef np.uint8_t BTYPE_t
 
 constants = model_constants
-
+cdef bool hgt=constants["hgt"]
 cdef double tau=constants["tau"]
 cdef double kd=constants["kd"]
 cdef double ka=constants["ka"]
+cdef double kh=constants["kh"]
+cdef double kt=constants["kt"]
 cdef double scale_mu=float(constants["mutation"][3]) #standard deviation for mutation of mutation rate
 
 
@@ -55,6 +57,7 @@ cdef class Animal:
     # public keyword makes the variable accessible to python
     cdef public double h,s,a,I0,I0p,b,bp,mu,t,ta
     cdef public int adjustments
+    cdef public int transfers
     cdef public double insulation
     cdef public double mismatch
     cdef public int lineage
@@ -66,12 +69,17 @@ cdef class Animal:
             self.genes = random_genes()
         else:
             if len(parent_genes)==7:
-                parent_genes=np.append(parent_genes,0.0) #mu
+                parent_genes=np.append(parent_genes,float(constants["mutation"][1])) #mu
+                parent_genes=np.append(parent_genes,0.0) #t
+                parent_genes=np.append(parent_genes,0.0) #ta
+            elif len(parent_genes)==8:
                 parent_genes=np.append(parent_genes,0.0) #t
                 parent_genes=np.append(parent_genes,0.0) #ta
             self.genes = parent_genes
+        
         self.mismatch = 0
         self.adjustments = 0 
+        self.transfers=0
         self.insulation = self.genes[3]
         self.lineage=lineage
         self.newborn = True  #for newborns gene set (normal or alternative) has to be chosen
@@ -103,13 +111,13 @@ cdef class Animal:
 
     cpdef lifetime_payoff(self):
         """Assembles the lifetime payoff of the animal"""
-
-        if (self.s <= 0.5):
-            p= c_max(c_exp(-tau*self.mismatch), 0)  
-            return p
-        else:    
-            p= c_max(c_exp(-tau*self.mismatch) - kd - self.adjustments * ka, 0) #ka is payed for every phenotype adjustment, kd is payed every round
-            return p
+        costs=0
+        if (self.s > 0.5):
+            costs+=kd + self.adjustments * ka
+        if (self.t > 0.5):
+            costs+=kh + self.transfers * kt  
+        p= c_max(c_exp(-tau*self.mismatch)-costs, 0) #ka is payed for every phenotype adjustment, kd is payed every round
+        return p
 
     cpdef mutate(self):
         """Causes the Animal's genes to mutate"""
@@ -124,14 +132,16 @@ cdef class Animal:
                 mutation_step = np.random.normal(loc=0,scale=scale_mu)  #mutate mutation rate with much lower step size
                 new_genes[7] += mutation_step
                 self.mu=new_genes[7]
+                
         r1=np.random.rand(4)
         for i,k in enumerate([0,1,3,4]): #genes modified for all individuals: h, s, I0, I0'
             if (r1[i]<=self.mu):
                 mutation_step = np.random.normal(loc=0,scale=0.05)
                 new_genes[k] += mutation_step
                 
-        r1=np.random.rand(3)    
+        
         if new_genes[1] > 0.5: # other genes modified if individual is plastic (s>0.5): a , b, b'
+            r1=np.random.rand(3)    
             for i,k in enumerate([2,5,6]):
                 if (r1[i]<=self.mu):
                     mutation_step = np.random.normal(loc=0,scale=0.05)
@@ -139,7 +149,7 @@ cdef class Animal:
         else:
             new_genes[2], new_genes[5], new_genes[6] = 0, 0, 0 # for non-plastic individuals, set a,b,b' to 0
             
-        if constants["hgt"]:  
+        if hgt:  
             r=randnum()
             if (r<=self.mu):
                 mutation_step = np.random.normal(loc=0,scale=0.05)
