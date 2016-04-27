@@ -32,7 +32,8 @@ except ImportError:
 #from population import Population
 #from environment import Environment
 from constants import model_constants
-
+constants = model_constants
+zeros=len(str(constants["generations"]))
 #@jit
 def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,variable=False):
     """
@@ -43,7 +44,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
         path: output path, timeseries: whether complex output should be saved, #???
         t: current time step, env: list of environments
     """
-    constants = model_constants
+
     animals = np.array(population.animals())
 
     genes = list(map(lambda x: x.gene_dict, animals))
@@ -55,17 +56,18 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
     data = pd.DataFrame(genes)
     mean = pd.DataFrame(data.mean())
     mean[0]["s"]=data["s"].median() #use median instead of mean for gene s
+    mean[0]["t"]=data["t"].median()
     mean=mean.transpose()   
     std = pd.DataFrame(data.std()).transpose()
    
 
 
-    f1.write(str(j)+",") #generation, environment
+    f1.write(str(j)+",") #generation
     f2.write(str(j)+",")
 
     if n == 0:
-        f1.write("0,0,0,0,0,0,0,0,0")
-        f2.write("0,0,0,0,0,0,0,0,0")
+        f1.write("0,0,0,0,0,0,0,0,0,0,0")
+        f2.write("0,0,0,0,0,0,0,0,0,0,0")
     else:
         mean.to_csv(f1, header=False, index=False, line_terminator='')
         std.to_csv(f2, header=False, index=False, line_terminator='')
@@ -79,7 +81,8 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,times,var
         dtype="png"
     else:
         dtype=constants["format"]
-    filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j)+'.'+dtype
+        
+    filename = path+'timeseries/pop'+str(k+1)+'_genes_'+str(j).zfill(zeros)+'.'+dtype
     if force_plot:
         plot_situation(t,data,n,env,filename,sizes,times,variable)
     elif constants["plot_every"] > 0:
@@ -96,9 +99,9 @@ def plot_situation(t,data,n,env,filename,sizes,times,variable=False):
     constants = model_constants
     if constants["verbose"]:
         print("\nPlotting ...")
-    fsize=37  #fontsize of axis labels and tick labels
-    palette = sns.color_palette("Set2", 4)
-    plt.figure(figsize=(30,40)) #size adjustment to have axis labels visible
+    fsize=12  #fontsize of axis labels and tick labels
+    #palette = sns.color_palette("Set2", 4)
+    plt.figure(figsize=(10,14)) #size adjustment to have axis labels visible
     rows=4
     index=0
     if variable:
@@ -120,7 +123,7 @@ def plot_situation(t,data,n,env,filename,sizes,times,variable=False):
         if have_seaborn:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                sns.violinplot(data=data,ax=ax,scale='width')  #gene plot
+                sns.violinplot(data=data,ax=ax,scale='width',linewidth=0.6)  #gene plot
         else:
             data.boxplot(ax=ax)
 
@@ -135,15 +138,15 @@ def plot_situation(t,data,n,env,filename,sizes,times,variable=False):
             t0 = np.arange(min(max(0,t-scale/2), np.abs(constants["L"]*constants["generations"]-scale)) ,min(constants["L"]*constants["generations"],max(t+scale/2,scale)),0.01*env.R*constants["L"]) #star always in the middle except at beginning and end
         else:
             t0 = np.arange(t-scale/2,t+scale/2,0.01*env.R*constants["L"])
-        ax1.plot(t0,np.array(list(map(env.evaluate,t0)))[:,0]) #plot E(t)
-        ax1.scatter(t,env.evaluate(t)[0],s=250,marker='*') #show actual time as *
+        ax1.plot(t0,np.array(list(map(env.evaluate,t0)))[:,0],linewidth=0.7) #plot E(t)
+        ax1.scatter(t,env.evaluate(t)[0],s=100,marker='*') #show actual time as *
         ax1.set_ylim(-2,2)
         ax1.set_xlim(t0[0],t0[-1]) 
         ax1.set_xlabel("Time t",fontsize=fsize)
         ax1.set_ylabel("E",fontsize=fsize)#labels und überschriften
         plt.tick_params(axis='both', which='both', labelsize=fsize)
 
-    plt.suptitle("The situation at $t = $"+str(t),fontsize=50)
+    plt.suptitle("The situation at $t = $"+str(t),fontsize=17)
     plt.subplots_adjust(top=0.95)
     plt.savefig(filename)
     plt.close()
@@ -164,7 +167,6 @@ def plot_size(path,fi,k): #plots the number of animals in each environment for e
     plt.ylim(0,constants["environment_sizes"]+200)
     plt.xlabel("Generation")
     plt.ylabel("Number of individuals")
-    
     if constants["proc"]>1:
         dtype="png"
     else:

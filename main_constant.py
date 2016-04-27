@@ -50,7 +50,7 @@ from constants import model_constants
 from iterate_population import iterate_population
 
 
-
+path=str()
 if __name__ == '__main__':
     # Get model constants
     constants = model_constants
@@ -79,8 +79,8 @@ if __name__ == '__main__':
     p.close()
     # write simulation parameters
     f = open(path+"parameters.txt","w")
-    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','populations','plot_every','verbose',\
-'random_choice','std_min','lineage_stop','desc','force_plast',"proc","save_all",'trans','path','use_pop']:
+    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','populations',\
+'random_choice','std_min','lineage_stop','force_plast',"proc",'hgt','trans','path','use_pop']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
 
@@ -137,8 +137,8 @@ if __name__ == '__main__':
                 f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
                 f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
     
-                f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
-                f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,nperPos,lin\n")
+                f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,t,ta,nperPos,lin\n")
+                f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,t,ta,nperPos,lin\n")
                         
                 # iterate on the population and create outputs
                 try:
@@ -155,7 +155,7 @@ if __name__ == '__main__':
             plt.close('all')
 
             f3 = open(path+"pop"+str(k+1)+"_final_state.csv",'w')
-            f3.write("h,s,a,I0,I0p,b,bp,mu,mismatch\n")
+            f3.write("h,s,a,I0,I0p,b,bp,mu,t,ta,mismatch\n")
             for a in population.animals():
                 for i,g in enumerate(a.genes):
                     if i!=0:

@@ -92,7 +92,7 @@ if __name__ == '__main__':
         else:
             factor=1
         final_t = data[-1,0]*constants["L"]*factor
-        size=int(data[-1,-2])
+        size=int(data[-1,-1])
         data2 = np.genfromtxt(final_state,skip_header=1,delimiter=",") #reads genes and n , nperPos from csv file of the whole final population if available
         genes1=data2[:,:-1]
         mean_genes=np.mean(genes1,axis=0)
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         f3.write("Mean genes(h,s,a,I0,I0p,b,bp,mu):\n{0}\n".format(mean_genes))
 
     for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','populations','plot_every','verbose',\
-'random_choice','std_min','lineage_stop','desc','force_plast',"proc",'trans','path','use_pop']:
+'random_choice','std_min','lineage_stop','desc','force_plast',"hgt","proc",'trans','path','use_pop']:
         f3.write("{0}:\t{1}\n".format(key,constants[key]))
     
 
@@ -162,9 +162,9 @@ if __name__ == '__main__':
             # write starting genes in files
 
         f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-        f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,size,lin\n")        
+        f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,t,s,ta,size,lin\n")        
         f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')
-        f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,size,lin\n")
+        f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,t,s,ta,size,lin\n")
             
         # create animals with the mean genes that shall be tested for each environment
         animals=[]
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         # unfortunately, the genes are written in a different order as it is used here
         if approx:
             genes = []
-            gene_order = [5,6,2,0,1,3,4]
+            gene_order = [5,6,2,0,1,3,4] #b,bp,a,h,s,I0,I0p
             for j in gene_order:
                 if (std_genes[j] > 0):
                     genes.append(np.random.normal(size=size,loc=mean_genes[j],scale=std_genes[j])) #if std>0 create size*genes using normal distribution around mean for each environment and gene
@@ -221,7 +221,7 @@ if __name__ == '__main__':
         a=[]
         for k in range(constants["populations"]):
              a.append(main(k))
-                   
+      
     survival_rate=0
     for i,out in enumerate(a):
         if out[0]:

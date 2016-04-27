@@ -23,7 +23,6 @@ from numba import jit
 from constants import model_constants # Import model constants
 from animal import Animal
 
-    
 class Population:
     def __init__(self,size,animals):
         """Takes a population size and a list of Animal as input"""
@@ -48,9 +47,27 @@ class Population:
 
 
     def react(self,E,C,evolve_all=False):
-        """Calculates the insulation of each Animal in the Population based on cue C and environment E"""                              
-        for animal in self._animals:           
-            animal.react(E,C,evolve_all)#animal reacts to environment, possibly migrates               
+        """Calculates the insulation of each Animal in the Population based on cue C and environment E"""   
+        r1=np.random.rand(self._size)
+        r2=np.random.rand(self._size)        
+        if self._constants["hgt"]:  
+            r3=np.random.rand(self._size)
+            
+        for i,animal in enumerate(self._animals):           
+            if self._constants["hgt"]:            
+                if (r3[i] <= animal.ta) and animal.t > 0.5 :
+                    j=np.random.randint(0,self._size) #animal from which to choose from
+                    if float(self._constants["mutation"][3])>0:
+                        g=np.random.randint(0,7) #gene to choose 
+                    else: 
+                        g=np.random.randint(0,6)
+                    gene=self._animals[j].genes[g] #value of this gene (from chosen animal)
+                    #animal.genes[g]=gene #Does this work? Or new method in animal.pyx
+                    genes=animal.genes                    
+                    genes[g]=gene                    
+                    animal.genes=genes
+                    
+            animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment, possibly migrates               
 
     def breed_constant(self):
         """Iterates the entire Population to a new generation, calculating the number of offspring of each Animal with CONSTANT population size"""

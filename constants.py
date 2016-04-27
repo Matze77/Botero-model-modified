@@ -24,7 +24,7 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,10,"number of generations per run"), #default
+        ("generations",int,1000,"number of generations per run"), #default
         ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
@@ -32,20 +32,21 @@ _PARAMETERS = [
         ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
         ("mutation",str,["normal","0.001","0.0","0.0"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
         the last value is the standard deviation for the mutation of this gene"), #0.001
-        ("environments",float,[10,0.5,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
+        ("environments",float,[1,0.5,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_names",str,"","displayed name of each environment"),
         ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
-        ("populations",int,4,"number of identical populations per run"), 
-        ("plot_every",int,0,"detailed output is plotted every N generations (0 = never)"),
+        ("populations",int,1,"number of identical populations per run"), 
+        ("plot_every",int,10,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,False,"triggers verbose output to command line"),   
         ("random_choice",bool,False,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
         ("lineage_stop",bool,False,"Stop if all animas are related to each other (common ancestor)"),
-        ("desc",str,"AT","Description of the run appended to the path"),
+        ("desc",str,"RP","Description of the run appended to the path"),
         ("force_plast",bool,False,"Forces animals to use plastic strategy"),
         ("save_all",bool,False,"Saves all animals' genes for each generation"),
         ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
         ("format",str,"pdf","Format of the figures in timeseries (png or pdf)"),
+        ("hgt",bool,True,"If HGT is turned on"),
 #for variable runs: 
         ("trans",bool,True,"if true, use these (changed) constants, if false, use the ones from the file"),
         ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.5/R0.32_P0.50/","set path for genes to use, if empty: path.txt is used"),
