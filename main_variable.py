@@ -122,9 +122,20 @@ if __name__ == '__main__':
         env = Environment(*constants["environments"]) 
     else: #or use environment from constant run
         env = Environment(*environment)
-
-    path = "./output_variable/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])
-   
+        
+    if constants["folder"]!="":       
+        path = "./output_variable/{0}/".format(constants["folder"])
+        try:
+            os.makedirs(path)      
+        except:
+            pass
+    else:
+        path = "./output_variable/"
+        
+    if constants["time_tag"] or constants["desc"]=="":        
+        path=path+"{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])  
+    else:
+        path=path+constants["desc"]+"/"
     
     try: 
         os.makedirs(path)

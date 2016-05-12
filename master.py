@@ -7,9 +7,9 @@ Created on Tue Apr  5 10:42:59 2016
 import os
 from multiprocessing import Pool
 
-p=4
+p=1
 file="main_constant.py"
-path= "/Users/matthias/Documents/popdyn/botero-model/fair_stop/"
+path= "/Users/matthias/Documents/popdyn/botero-model/single_runs/"
 
 def run(line):
         c="python "+path+file+" "+line
@@ -18,10 +18,10 @@ def run(line):
 
 lines=[]
 
-with open(path+"/runs/constant_hgt_test.txt","r") as f:
+with open(path+"/runs/constant_run2.txt","r") as f:
     line=f.readline()
     lines.append(line)
-    while line:
+    while line and line!="":
         line=f.readline()
         lines.append(line)       
     

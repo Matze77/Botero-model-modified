@@ -64,7 +64,20 @@ if __name__ == '__main__':
 
     # create output directory
     now = datetime.datetime.today()
-    path = "./output/{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])
+    
+    if constants["folder"]!="":       
+        path = "./output/{0}/".format(constants["folder"])
+        try:
+            os.makedirs(path)   
+        except:
+            pass
+    else:
+        path = "./output/"
+        
+    if constants["time_tag"] or constants["desc"]=="":        
+        path=path+"{0:%y}-{0:%m}-{0:%d}_{0:%H}-{0:%M}-{0:%S}-{1}/".format(now,constants["desc"])  
+    else:
+        path=path+constants["desc"]+"/"
     try: 
         os.makedirs(path)
         os.makedirs(path+"timeseries/")

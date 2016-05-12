@@ -29,7 +29,7 @@ _PARAMETERS = [
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
-        ("q",float,2.5,"controls expected number of offspring in variable scenario"), #2.2
+        ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
         ("mutation",str,["normal","0.01","0.0","0.0"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
         the last value is the standard deviation for the mutation of this gene"), #0.001
         ("environments",float,[1000,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
@@ -42,11 +42,13 @@ _PARAMETERS = [
         ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
         ("lineage_stop",bool,0,"Stop if all animas are related to each other (common ancestor)"),
         ("desc",str,"RP","Description of the run appended to the path"),
+        ("time_tag",bool,0,"Set current time (+description) as folder name"),
         ("force_plast",bool,0,"Forces animals to use plastic strategy"),
         ("save_all",bool,0,"Saves all animals' genes for each generation"),
         ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
         ("format",str,"pdf","Format of the figures in timeseries (png or pdf)"),
-        ("hgt",bool,1,"If HGT is turned on"),
+        ("folder",str,"","Create additional folder to put output in"),
+        ("hgt",bool,0,"If HGT is turned on"),
         ("check",bool,0,"If animals check the fitness of the donor before doing HGT"),
         ("kh",float,0.02,"constant cost of hgt"),
         ("kt",float,0.01,"cost of each transfer"),
