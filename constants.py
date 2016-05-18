@@ -24,7 +24,7 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,500,"number of generations per run"), #default
+        ("generations",int,100,"number of generations per run"), #default
         ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
@@ -32,20 +32,18 @@ _PARAMETERS = [
         ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
         ("mutation",str,["normal","0.01","0.0","0.0"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
         the last value is the standard deviation for the mutation of this gene"), #0.001
-        ("environments",float,[1000,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
-        ("environment_names",str,"","displayed name of each environment"),
-        ("environment_sizes",int,5000,"Specifies number of animals in each environment"),                
-        ("populations",int,1,"number of identical populations per run"), 
+        ("environment",float,[100,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
+        ("environment_name",str,"","displayed name of each environment"),
+        ("size",int,5000,"Specifies number of animals in each environment"),                
+        ("populations",int,4,"number of identical populations per run"), 
         ("plot_every",int,100,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,0,"triggers verbose output to command line"),   
-        ("random_choice",bool,0,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
-        ("std_min",float,[],"Stop loop when desired standard deviation for the genes I0,a,b,h (for each environment) is reached"),
-        ("lineage_stop",bool,0,"Stop if all animas are related to each other (common ancestor)"),
+        ("random_choice",bool,1,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("desc",str,"RP","Description of the run appended to the path"),
         ("time_tag",bool,0,"Set current time (+description) as folder name"),
         ("force_plast",bool,0,"Forces animals to use plastic strategy"),
         ("save_all",bool,0,"Saves all animals' genes for each generation"),
-        ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
+        ("proc",int,4,"Number of processes (populations) that are executed at the same time"),
         ("format",str,"pdf","Format of the figures in timeseries (png or pdf)"),
         ("folder",str,"","Create additional folder to put output in"),
         ("hgt",bool,0,"If HGT is turned on"),
@@ -53,9 +51,10 @@ _PARAMETERS = [
         ("kh",float,0.02,"constant cost of hgt"),
         ("kt",float,0.01,"cost of each transfer"),
 #for variable runs: 
-        ("trans",bool,0,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/P=0.5/R0.32_P0.50/","set path for genes to use, if empty: path.txt is used"),
-        ("use_pop",int,1,"which of the populations to use for mean_genes")
+        ("trans",bool,1,"if true, use these (changed) constants, if false, use the ones from the file"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R0.32_P0.50/","set path for genes to use, if empty: path.txt is used"),
+        ("use_pop",int,1,"which of the populations to use for mean_genes"),
+        ("stop_half",bool,1,"Stop after half of the populations survived to save time"),
 
 ]
 # --------------------------
@@ -90,7 +89,7 @@ model_constants = ModelConstants()
 parser = argparse.ArgumentParser()
 
 for key in _PARAMETERS:
-    if key[0] in ["environments"]: # Setting R,P,A,B,O for each environment
+    if key[0] in ["environment"]: # Setting R,P,A,B,O for each environment
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs=5,help=key[3])
     elif key[0] in ["mutation"]: # Setting R,P,A,B,O for each environment
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs=4,help=key[3])
@@ -108,7 +107,7 @@ args = parser.parse_args().__dict__
 # Update model_constants object with read parameters
 for key in _PARAMETERS:   
     if args[key[0]] or args[key[0]]==0:
-        if key[0] in['environments',"mutation"]:
+        if key[0] in['environment',"mutation"]:
             val=args[key[0]][0]
         elif key[1]==bool:
             val=bool(args[key[0]])
@@ -116,10 +115,10 @@ for key in _PARAMETERS:
             val=args[key[0]]
         model_constants.change_constant(key[0],val)
 for i,key in enumerate(["R","P","A","B","O"]):
-    environments = model_constants["environments"]
+    environment = model_constants["environment"]
     if args[key]:
-        environments[i] = args[key][0]
-        model_constants.change_constant("environments",environments)
+        environment[i] = args[key][0]
+        model_constants.change_constant("environment",environment)
 
 # Print some information
 print("\nRunning model with the following parameters:")

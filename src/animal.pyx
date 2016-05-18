@@ -52,7 +52,6 @@ cdef class Animal:
     """Implements a cython class Animal, that is also available outside of this module"""
     # properties of Animal, typed as C variables for speed
     cdef object _constants
-    cdef bool newborn
     cdef bool primed
     # public keyword makes the variable accessible to python
     cdef public double h,s,a,I0,I0p,b,bp,mu,t,ta
@@ -82,41 +81,40 @@ cdef class Animal:
         self.transfers=0
         self.insulation = self.genes[3]
         self.lineage=lineage
-        self.newborn = True  #for newborns gene set (normal or alternative) has to be chosen
         self.primed = False #defines whiche gene set to use (normal or alternative)
         
 
-# PUBLIC METHODS            
+# PUBLIC METHODS
+    cpdef choose_set(self,double r):        
+        """At birth of animal: Determine if primed or unprimed gene set (I0,b) is used"""
+        if (r <= self.h): 
+            self.primed=False
+        else:
+            self.primed=True
+            self.insulation=self.I0p
 
-    cpdef react(self,double E, double C, double r1,double r2,BTYPE_t evolve_all=0):
+    cpdef react(self,double E, double C, double r,BTYPE_t evolve_all=0):
         """Animal migrates and reacts to environment E and cue C. If evolve_all is set, reaction takes place for all animals, regardless of gene 'a'."""
-        cdef float new_insulation
-          
-        if self.newborn: #check if animal is newborn and determine its gene set with h
-                if (r1 <= self.h): 
-                    self.primed=False
+        cdef float new_insulation        
+        if self.s > 0.5:         
+            if ((r<= self.a) | evolve_all):#draws random number to determine whether the animal adjusts its insulation (just for plastic ones)
+                if self.primed:
+                    new_insulation = self.I0p+self.bp*C
                 else:
-                    self.primed=True
-                    self.insulation=self.I0p
-                self.newborn=False
-                
-        if (((r2 <= self.a) | evolve_all) and self.s > 0.5 ): #draws random number to determine whether the animal adjusts its insulation (just for plastic ones)
-            if self.primed:
-                new_insulation = self.I0p+self.bp*C
-            else:
-                new_insulation = self.I0+self.b*C
-            self.insulation = new_insulation 
-            self.adjustments+=1  #raise adjustments
+                    new_insulation = self.I0+self.b*C
+                self.insulation = new_insulation 
+                self.adjustments+=1  #raise adjustments
         self.mismatch += c_abs(self.insulation-E)
 
     cpdef lifetime_payoff(self):
         """Assembles the lifetime payoff of the animal"""
+        cdef double costs
         costs=0
         if (self.s > 0.5):
-            costs+=kd + self.adjustments * ka
+            costs+=kd + (self.adjustments-1) * ka #ka is payed for every phenotype adjustment (except the obligatory first one), kd is payed every round
         if (self.t > 0.5):
             costs+=kh + self.transfers * kt  
-        p= c_max(c_exp(-tau*self.mismatch)-costs, 0) #ka is payed for every phenotype adjustment, kd is payed every round
+        p= c_max(c_exp(-tau*self.mismatch)-costs, 0) 
         return p
 
     cpdef mutate(self):
@@ -154,7 +152,7 @@ cdef class Animal:
             if (r<=self.mu):
                 mutation_step = np.random.normal(loc=0,scale=0.05)
                 new_genes[8] += mutation_step
-            if new_genes[8] > 0.5: # other genes modified if individual is plastic (s>0.5): a , b, b'
+            if new_genes[8] > 0.5: 
                 r = randnum()
                 if (r<=self.mu):
                     mutation_step = np.random.normal(loc=0,scale=0.05)
@@ -192,7 +190,7 @@ cdef class Animal:
         self.I0p = genes[4]
         self.b = genes[5]
         self.bp = genes[6]
-        self.mu = c_max(0,c_min(1,genes[7]))  
+        self.mu = c_max(0.000001,c_min(1,genes[7]))  #to prevent mutation from stopping completely
         self.t=c_max(0,c_min(1,genes[8]))   
         self.ta=c_max(0,c_min(1,genes[9]))   
     
@@ -208,7 +206,7 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     h: 1, s: [0,1], a: [0,1], I0: [-1,1], I0p: [-1,1], b: [-2,2], bp: [-2,2] ,mu: from normal/uniform distr.,t: [0,1], ta: [0,1]"""
     cdef np.ndarray[double,ndim=1] rand_numbers, rand_genes 
     cdef str distr_mut
-    cdef double mut1,mut2
+    cdef double mut1,mut2,r,s1,s2,t1
     rand_numbers = np.array([randnum() for _ in np.arange(9)])
     s1=1 #values for plasticity trait
     s2=0
@@ -249,4 +247,4 @@ cdef inline double randnum():
     """Returns random numbers at C speed"""
     return np.random.rand()    
     
-    #return c_rand() / float(RAND_MAX)
+

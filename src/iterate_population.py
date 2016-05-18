@@ -17,12 +17,6 @@
 import numpy as np 
 import time
 import sys
-#from numba import jit
-
-# Import other parts of the project
-#from animal import Animal
-#from population import Population
-#from environment import Environment
 from constants import model_constants
 from output_population import output_population, plot_size
 
@@ -32,27 +26,26 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
     MAIN CONTROLLER
     Inputs:
         k: population counter,  population: the Population instance to be iterated,
-        environments: Environment instances to be operated on,
+        environment: Environment instance to be operated on,
         f1: pointer to output file for gene means,  f2: for gene standard deviations,
         path: path to the output files  t: initial time,   
         variable: variable population size
     """
 
     constants = model_constants
-#    Dp=[]
-#    Dm=[]
-#    D0=[]
     sizes=[population._size]
+    E, C = environment.evaluate(t)
+    population.react(E,C,1)   #for initial random animals: all plastic animals react
     output_population(population,f1,f2,0,k,path,True,t,environment,sizes,variable) #creates plots and csv files
     for j in np.arange(1,constants["generations"]+1):  
         # MAIN TIME STEP LOOP
         start = time.clock()    
-        for _ in range(constants["L"]): #loop for time steps in each animal's life
-           #calculate E,C at time t for all environments
-            E, C = environment.evaluate(t)
+        for _ in range(constants["L"]): #loop for time steps in each animal's life        
+            t = t+1
+            E, C = environment.evaluate(t) #calculate E,C at time t for all environment
             population.react(E,C) #animals react to environment
 
-            t = t+1
+          
         output_population(population,f1,f2,j,k,path,False,t,environment,sizes,variable) #creates plots and csv files
                 
         if constants["save_all"]:
@@ -79,14 +72,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
                 
         sizes.append(population._size)
         
-#        if d>0:
-#            Dp.append(d)
-#        elif d<0:
-#            Dm.append(d)
-#        else: 
-#            D0.append(d)
         if population.size() == 0:
-            #print("Population died out!\n\n")
             break
         population.react(E,C,1)   #all plastic animals react
         end = time.clock()
@@ -99,23 +85,6 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         spaces = ' ' * (20 - len(hashes))
         sys.stdout.write("\rProgress population {2} of {3}: [{0}] {1:.1f}%".format(hashes + spaces, percent * 100,k+1,constants["populations"]))
         sys.stdout.flush()                             
-        stop=False
-        std_min=constants["std_min"]
-        if len(std_min)!=0 and std_min:
-            stop=True
-            for l in ["I0","I0p","a","b","bp","mu","h","s"]:
-                try:
-                    if float(std[l])>std_min:   
-                        stop=False
-                except:
-                    if float(std[l])>std_min:
-                        stop=False                              
-        if constants["lineage_stop"] and max(np.bincount(population.lineage()))==len(population._animals):
-            print("\n Common ancestry reached, loop stopped after {0} generations!".format(j))
-            break
-        elif stop: #if all std above are <std_min: break loop
-            print("\n Desired std reached, loop stopped after {0} generations!".format(j))
-            break
 
 
 
@@ -126,5 +95,4 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
     if  variable:
         plot_size(path,path+"pop"+str(k+1)+"_mean_genes.csv",k) #plots the number of animals in each environment for each generation
         
-   # print(np.mean(Dp)/population._size,np.std(Dp)/population._size,np.mean(Dm)/population._size,np.std(Dm)/population._size,len(D0))
     return final_mean, final_std, j #j: last generation

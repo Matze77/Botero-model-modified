@@ -44,73 +44,71 @@ class Population:
         """Returns the current size of the population"""
         return self._size
 
-
-
     def react(self,E,C,evolve_all=False):
         """Calculates the insulation of each Animal in the Population based on cue C and environment E"""   
-        r1=np.random.rand(self._size)
-        r2=np.random.rand(self._size)        
+        if not evolve_all:
+            r2=np.random.rand(self._size)        
+        else:
+            r1=np.random.rand(self._size)
+            for i,animal in enumerate(self._animals): 
+                animal.choose_set(r1[i]) #After birth: choose primed or unprimed gene set for each animal
+            r2=np.empty(self._size) #random numbers for adjustments not needed, as adjustment after birth is obligatory 
         if self._constants["hgt"]:  
             r3=np.random.rand(self._size)
-            for i,animal in enumerate(self._animals):           
-                if (r3[i] <= animal.ta) and animal.t > 0.5 :
-                    j=np.random.randint(0,self._size) #animal from which to choose from
-                    if self._constants["check"]: #Payoff of donor animal is checked (directed HGT)
-                        if self._animals[j].lifetime_payoff()< animal.lifetime_payoff():
-                            animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment 
-                            continue    #stop this iteration if current payoff of donor animal is smaller than for the recipient animal
-                            
-                    if float(self._constants["mutation"][3])>0:
-                        g=np.random.randint(0,7) #gene to choose 
-                    else: 
-                        g=np.random.randint(0,6)
-                    gene=self._animals[j].genes[g] #value of this gene (from chosen animal)                
-                    genes=animal.genes                    
-                    genes[g]=gene                    
-                    animal.genes=genes
-                    animal.transfers+=1
-                    
-                animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment               
+            for i,animal in enumerate(self._animals):    
+                if animal.t > 0.5:
+                    if (r3[i] <= animal.ta):
+                        j=np.random.randint(0,self._size) #animal from which to choose from
+                        if self._constants["check"]: #Payoff of donor animal is checked (directed HGT)
+                            if self._animals[j].lifetime_payoff()< animal.lifetime_payoff():
+                                animal.react(E,C,r2[i],evolve_all)#animal reacts to environment 
+                                continue    #stop this iteration if current payoff of donor animal is smaller than for the recipient animal
+                                
+                        if float(self._constants["mutation"][3])>0: #if mu is mutable, also this trait can be chosen for hgt
+                            g=np.random.randint(0,7) #gene to choose 
+                        else: 
+                            g=np.random.randint(0,6)
+                        gene=self._animals[j].genes[g] #value of this gene (from chosen animal)                
+                        genes=animal.genes                    
+                        genes[g]=gene                    
+                        animal.genes=genes
+                        animal.transfers+=1
+                        
+                    animal.react(E,C,r2[i],evolve_all)#animal reacts to environment               
         else:
             for i,animal in enumerate(self._animals):  
-                animal.react(E,C,r1[i],r2[i],evolve_all)#animal reacts to environment
+                animal.react(E,C,r2[i],evolve_all)#animal reacts to environment
                 
     def breed_constant(self):
         """Iterates the entire Population to a new generation, calculating the number of offspring of each Animal with CONSTANT population size"""
         calc_payoff     = np.vectorize(lambda x: x.lifetime_payoff())
         lifetime_payoff = calc_payoff(self._animals)
-        #print(list(lifetime_payoff))
         mean_payoff  = np.mean(lifetime_payoff)
-        population_size=self._constants["environment_sizes"]
+        population_size=self._constants["size"]
         if (mean_payoff == 0):
             raise RuntimeError("Mean payoff of population decreased to 0. Check your parameters!")
         else:
             payoff_factor = lifetime_payoff/mean_payoff                                        
         offspring = np.random.poisson(lam=payoff_factor) #number of offspring drawn from Poisson distr for each animal 
-    #    print(offspring)
-    #    print(payoff_factor)
-
         d=np.sum(offspring)-population_size
         
         if self._constants["random_choice"]:    
             Ind=np.arange(0,len(offspring)) #all indices
-            I=Ind[(offspring>0)] # array of relevant indices to choose from
-            if len(I)==0: 
-                I=Ind
             if d>0:#if environment overcrowded reduce offspring randomly
                 add=-1
+                I=Ind[(offspring>0)] #animals with zero offspring are disregarded
             else:#if too few, increase offspring randomly
                 add=1
+                I=Ind
             for i in range(abs(d)):  
-                stop=False
-                while not stop:
-                    m=np.random.choice(I)
-                    if  offspring[m]!=0 or sum(offspring)==0: #animals with zero offspring are disregarded unless there is no offspring
-                        offspring[m]+=add
-                        stop=True
+                m=np.random.choice(I)
+                offspring[m]+=add
+                if d>0:
+                    I=Ind[(offspring>0)] #update index list to prevent picking an individual with 0 offspring
+
         else:
             pf=np.array(payoff_factor)
-            if d>0:#if environment overcrowded let the least fit animals have less offspring
+            if d>0:#if environment overcrowded let the least fit animal(s) have less offspring
                 mx=np.max(pf)
                 pf[offspring==0]=mx+1 #to make sure that no animals with offspring 0  are selected
                 for i in range(d):                         
@@ -119,12 +117,11 @@ class Population:
                     if offspring[m]==0:
                         pf[m]=mx+1
                 
-            elif d<0:#if too few, clone the fittest animals                
+            elif d<0:#if too few, let the fittest animals have more offspring          
                 for i in range(-d):                     
                     m=np.argmax(pf)
                     pf[m]=0 #to ensure that not all additional offspring is from one animal
                     offspring[m]+=1  
-    #    print(offspring)                                           
         born_animals = np.repeat(self._animals,offspring) # Create list with offspring repeats for each animal (cloned animals)      
         mutate_pop = np.vectorize(lambda x: Animal(x.mutate(),x.lineage)) #animals are created with mutated genes of their parents
         new_animals = mutate_pop(born_animals) #create and mutate offspring (use mutated genes as parent genes)      
@@ -141,17 +138,16 @@ class Population:
         for j,animal in enumerate(self._animals):
              payoff_factor=np.append(payoff_factor,self._constants["q"]*lifetime_payoff[j])
         offspring     = np.random.poisson(lam=payoff_factor)             
-        d=np.sum(offspring)-self._constants["environment_sizes"]    
+        d=np.sum(offspring)-self._constants["size"]    
         if d>0:
             if self._constants["random_choice"]:    
-                I=np.arange(0,len(offspring))[offspring>0] # array of relevant indices to choose from  
+                Ind=np.arange(0,len(offspring)) #all indices
+                I=Ind[(offspring>0)] #animals with zero offspring are disregarded
                 for i in range(d):  
-                    stop=False
-                    while not stop:
-                        m=np.random.choice(I)
-                        if  offspring[m]!=0: #animals with zero offspring are disregarded 
-                            offspring[m]-=1
-                            stop=True
+                    m=np.random.choice(I)
+                    offspring[m]-=1
+                    I=Ind[(offspring>0)] #update index list to prevent picking an individual with 0 offspring
+
             else:
                 pf=np.array(payoff_factor)
                 if d>0:#if environment overcrowded let the least fit animals have less offspring

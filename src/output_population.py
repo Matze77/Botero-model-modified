@@ -43,7 +43,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,variable=
         f1: file handle for mean gene file, f2: file handle for standard dev. of genes
         j: current generation counter, k: current population counter,
         path: output path, timeseries: whether complex output should be saved, #???
-        t: current time step, env: list of environments
+        t: current time step, env: list of environment
     """
 
     animals = np.array(population.animals())
@@ -90,7 +90,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,variable=
         if (j % constants["plot_every"]) == 0: #modulo to plot every n times
             plot_situation(j,data,n,env,filename,sizes,variable)
     elif constants["plot_every"] < 0:
-        T=math.ceil(constants["environments"][0]/6)  #if plot_every is set smaller than 0, plot 6 times per environment cycle
+        T=math.ceil(constants["environment"][0]/6)  #if plot_every is set smaller than 0, plot 6 times per environment cycle
         if (j % T) == 0: 
             plot_situation(j,data,n,env,filename,sizes,variable)
     return mean, std
@@ -112,7 +112,7 @@ def plot_situation(j,data,n,env,filename,sizes,variable=False):
         ax.plot(sizes,"-",lw=0.7)
         ax.set_xlim(0,j+1)
         ax.set_xlabel("Time",fontsize=fsize)
-        ax.set_ylim(0,constants["environment_sizes"]+200)
+        ax.set_ylim(0,constants["size"]+200)
         ax.set_ylabel("Size",fontsize=fsize)
         plt.tick_params(axis='both', which='both', labelsize=fsize)
        
@@ -164,7 +164,7 @@ def plot_size(path,fi,k): #plots the number of animals in each environment for e
     plt.figure()
     plt.plot(sizes[:],alpha=0.7,label="Environment ",linewidth=0.5)  #sizes[:,i] gives the elements of the ith column
     plt.legend()
-    plt.ylim(0,constants["environment_sizes"]+200)
+    plt.ylim(0,constants["size"]+200)
     plt.xlabel("Generation")
     plt.ylabel("Number of individuals")
     if constants["proc"]>1:

@@ -54,7 +54,7 @@ path=str()
 if __name__ == '__main__':
     # Get model constants
     constants = model_constants
-    population_size=constants["environment_sizes"]
+    population_size=constants["size"]
     
 
     if have_seaborn: # initialize seaborn
@@ -92,19 +92,19 @@ if __name__ == '__main__':
     p.close()
     # write simulation parameters
     f = open(path+"parameters.txt","w")
-    for key in ['generations','L','kd','ka','tau','q','mutation','environments','environment_names','environment_sizes','populations',\
-'random_choice','std_min','lineage_stop','force_plast',"proc",'hgt','check','kh','kt','trans','path','use_pop']:
+    for key in ['generations','L','kd','ka','tau','q','mutation','environment','environment_name','size','populations',\
+'random_choice','force_plast',"proc",'hgt','check','kh','kt','trans','path','use_pop']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
 
-    # plot environments
+    # plot environment
        
   
-    T=round(5*constants["environments"][0]*constants["L"])  #how many time steps to plot
-    step=(constants["environments"][0]*constants["L"])/100 #step size
+    T=round(5*constants["environment"][0]*constants["L"])  #how many time steps to plot
+    step=(constants["environment"][0]*constants["L"])/100 #step size
     M=math.floor(T/step+1) #number of data points
     t0 = np.arange(0,T,step)
-    env = Environment(*constants["environments"]) #create new environment
+    env = Environment(*constants["environment"]) #create new environment
     
     env_val = np.array(list(map(env.evaluate,t0))) #calculate its values
 
@@ -132,8 +132,8 @@ if __name__ == '__main__':
             repeat = True
             animal_list=[]
             while repeat:             
-                    # create animals in each environment according to environment_sizes that already have the correct random genes
-                animal_list.extend([Animal(np.array([]),lineage=_) for _ in range(constants["environment_sizes"])]) #if only one value is given
+                    # create animals in each environment according to size that already have the correct random genes
+                animal_list.extend([Animal(np.array([]),lineage=_) for _ in range(constants["size"])]) #if only one value is given
                 # create a Population from animal_list
     #            for a in animal_list:
     #                print(a.genes)
@@ -155,7 +155,7 @@ if __name__ == '__main__':
                         
                 # iterate on the population and create outputs
                 try:
-                    #%timeit iterate_population(k,population,environments,f1,f2,path)
+                    #%timeit iterate_population(k,population,environment,f1,f2,path)
                     pop_mean, pop_std, _ = iterate_population(k,population,env,f1,f2,path) #create plots and return values for last generation
                     repeat = False #if pop dies out no error occurs?
                 except RuntimeError:
