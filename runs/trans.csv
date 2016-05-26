@@ -1,0 +1,2 @@
+Transition,q,normal,mut(std=0.001),mut(std=0.01),mut(std=0.1),hgt_random,hgt_check
+AT-IP,1.3,10/10,10/10,10/10, 0/20,10/10,10/10

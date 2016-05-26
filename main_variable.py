@@ -31,7 +31,7 @@ import os # To create directories
 import datetime # To access the current time
 import sys # To access command line arguments
 #import warnings # To warn the user
-import csv # For file operations
+import csv
 
 try: # Seaborn makes prettier plots, but is not installed in a fresh Anaconda python
     import seaborn as sns 
@@ -64,26 +64,31 @@ if __name__ == '__main__':
         path=p.readline()
 
     final_state=path+ "pop{0}_final_state.csv".format(constants["use_pop"])  #specify path to csv file in constants (from run with constant pop size) 
-    parameters=path+"parameters.txt"
+    f_mean = path + "pop{0}_mean_genes.csv".format(constants["use_pop"]) #specify path to csv file in constants (from run with constant pop size) 
+
     # create output directory
     now = datetime.datetime.today()
     start = time.clock()
 
     # read the csv files
-    with open(parameters) as f:
-        for i in range(8):
-            line=f.readline()
-            if i==0:
-                gen=float(line[13:-1]) #number of generations in the constant run
-                
-        line=line[15:-2]
-        env=line.rsplit(",")
-        environment=list(map(float,env))  #reads environment values                 
-                
+  
+    with open(f_mean) as f:
+        reader = csv.reader(f,delimiter=",")
+        for (i,row) in enumerate(reader):
+            if row and row[0]!="":
+                if row[0]=="n":
+                    data = np.genfromtxt(f_mean,skip_header=i+1,delimiter=",") #reads mean genes and n , nperPos from csv 
+                    break
+                elif (row[0][0]!="R"): 
+                    e=row[:5]
+                    environment=list(map(float,e))  #reads environment values 
+          
+
     if constants["trans"]:
         factor=constants["environment"][0]/environment[0] #to ensure that environment value E is continous (no jump from constant run)
     else:
         factor=1
+    gen=data[-1,0]
     final_t = gen*constants["L"]*factor #final time of constant run
     data = np.genfromtxt(final_state,skip_header=1,delimiter=",") #reads genes and n , nperPos from csv file of the whole final population 
     genes1=data[:,:-1] #last column mismatch is removed
@@ -118,7 +123,7 @@ if __name__ == '__main__':
     f3.write("Mean genes(h,s,a,I0,I0p,b,bp,mu):\n{0}\n".format(mean_genes))
     f3.write("Std genes:\n{0}\n".format(std_genes))
     for key in ['generations','L','kd','ka','tau','q','mutation','environment','environment_name','size','populations','plot_every','verbose',\
-'random_choice','desc','force_plast',"hgt",'check','kh','kt',"proc",'trans','path','use_pop']:
+'random_choice','desc','force_plast',"hgt",'check','kh','kt',"proc",'trans','path','use_pop','stop_half',"start_hgt"]:
         f3.write("{0}:\t{1}\n".format(key,constants[key]))
     
     end = time.clock()
@@ -136,9 +141,9 @@ if __name__ == '__main__':
             # write starting genes in files
 
         f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-        f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,t,s,ta,size,lin\n")        
+        f1.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,t,ta,size,lin\n")        
         f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')
-        f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,t,s,ta,size,lin\n")
+        f2.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,t,ta,size\n")
             
         # create animals with the mean genes that shall be tested for each environment
         animals=[]
@@ -202,10 +207,12 @@ if __name__ == '__main__':
                 f3.write("Population {0} survived!\n".format(k+1))
             else:
                 f3.write("Population {0} died at generation {1}!\n".format(k+1,out[1]))  
-            if survival_rate>=constants["populations"]/2 and constants["stop_half"]:
+            if float((survival_rate+constants["populations"]-k-1))/constants["populations"]<constants["survival_goal"]:
+                break
+            if survival_rate>=constants["populations"]/2 and constants["stop_half"] and k<constants["populations"]/2:
                 break
                   
-    f3.write("\n\nIn total, {0}/{1} Populations survived.".format(survival_rate,len(a)))
+    f3.write("\n\nIn total,   {0}/{1} Populations survived.".format(survival_rate,len(a)))
     f3.close()
 
 

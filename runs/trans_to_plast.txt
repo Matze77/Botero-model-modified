@@ -1,0 +1,2 @@
+--environments 3.75 0.18 1 0 0 --force_plast 00 --desc R3.75_P0.18 --plot_every 0 --folder trans_to_plast --populations 5 --generations 700 --mutation normal 0.001 0.0 0.00
+--environments 3.75 0.19 1 0 0 --force_plast 00 --desc R3.75_P0.19 --plot_every 0 --folder trans_to_plast --populations 5 --generations 700 --mutation normal 0.001 0.0 0.00

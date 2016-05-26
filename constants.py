@@ -35,15 +35,15 @@ _PARAMETERS = [
         ("environment",float,[100,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_name",str,"","displayed name of each environment"),
         ("size",int,5000,"Specifies number of animals in each environment"),                
-        ("populations",int,4,"number of identical populations per run"), 
-        ("plot_every",int,100,"detailed output is plotted every N generations (0 = never)"),
+        ("populations",int,1,"number of identical populations per run"), 
+        ("plot_every",int,10,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,0,"triggers verbose output to command line"),   
-        ("random_choice",bool,1,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
+        ("random_choice",bool,0,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("desc",str,"RP","Description of the run appended to the path"),
         ("time_tag",bool,0,"Set current time (+description) as folder name"),
         ("force_plast",bool,0,"Forces animals to use plastic strategy"),
         ("save_all",bool,0,"Saves all animals' genes for each generation"),
-        ("proc",int,4,"Number of processes (populations) that are executed at the same time"),
+        ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
         ("format",str,"pdf","Format of the figures in timeseries (png or pdf)"),
         ("folder",str,"","Create additional folder to put output in"),
         ("hgt",bool,0,"If HGT is turned on"),
@@ -51,10 +51,12 @@ _PARAMETERS = [
         ("kh",float,0.02,"constant cost of hgt"),
         ("kt",float,0.01,"cost of each transfer"),
 #for variable runs: 
-        ("trans",bool,1,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/R0.32_P0.50/","set path for genes to use, if empty: path.txt is used"),
+        ("trans",bool,0,"if true, use these (changed) constants, if false, use the ones from the file"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/new/R1.00_P0.50/","set path for genes to use, if empty: path.txt is used"),
         ("use_pop",int,1,"which of the populations to use for mean_genes"),
         ("stop_half",bool,1,"Stop after half of the populations survived to save time"),
+        ("start_hgt",bool,1,"If hgt is enabled: Animals start with t>0.5 in variable runs"),
+        ("survival_goal",float,0,"Goal for survival rate; Stop if too many populations died out already")
 
 ]
 # --------------------------

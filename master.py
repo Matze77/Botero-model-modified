@@ -7,8 +7,7 @@ Created on Tue Apr  5 10:42:59 2016
 import os
 from multiprocessing import Pool
 
-p=2
-file="main_constant.py"
+p=1
 path= "/Users/matthias/Documents/popdyn/botero-model/single_runs/"
 
 def run(line):
@@ -18,7 +17,8 @@ def run(line):
 
 lines=[]
 
-with open(path+"/runs/trans_to_plast.txt","r") as f:
+with open(path+"/runs/based_all.txt","r") as f:
+    file=f.readline()
     line=f.readline()
     lines.append(line)
     while line and line!="":
@@ -35,10 +35,7 @@ for i,l in enumerate(lines):
         list2=[]
 list1.append(list2)
 
-     
-  
 
-    
 '''Run p number of processes simultaneously'''
 
 a=[]

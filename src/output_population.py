@@ -72,9 +72,10 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,variable=
     else:
         mean.to_csv(f1, header=False, index=False, line_terminator='')
         std.to_csv(f2, header=False, index=False, line_terminator='')
-    
-    f1.write(","+str(n)+","+str(max(np.bincount(population.lineage())))) #last numbers: number of animals and size of biggest family
-    f2.write(","+str(n))
+    if variable:     
+        f1.write(","+str(n)) #number of animals
+        f2.write(","+str(n))
+    f1.write(","+str(max(np.bincount(population.lineage())))) #size of biggest family (those with same lineage)
 
     f1.write("\n")
     f2.write("\n")

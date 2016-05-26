@@ -93,7 +93,7 @@ if __name__ == '__main__':
     # write simulation parameters
     f = open(path+"parameters.txt","w")
     for key in ['generations','L','kd','ka','tau','q','mutation','environment','environment_name','size','populations',\
-'random_choice','force_plast',"proc",'hgt','check','kh','kt','trans','path','use_pop']:
+'random_choice','force_plast',"proc",'hgt','check','kh','kt']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
 
@@ -150,8 +150,8 @@ if __name__ == '__main__':
                 f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
                 f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
     
-                f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,t,ta,nperPos,lin\n")
-                f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,t,ta,nperPos,lin\n")
+                f1.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,t,ta,lin\n")
+                f2.write("\nn,I0,I0p,mismatch,a,b,bp,h,mu,s,t,ta\n")
                         
                 # iterate on the population and create outputs
                 try:

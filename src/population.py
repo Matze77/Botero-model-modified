@@ -74,7 +74,7 @@ class Population:
                         animal.genes=genes
                         animal.transfers+=1
                         
-                    animal.react(E,C,r2[i],evolve_all)#animal reacts to environment               
+                animal.react(E,C,r2[i],evolve_all)#animal reacts to environment               
         else:
             for i,animal in enumerate(self._animals):  
                 animal.react(E,C,r2[i],evolve_all)#animal reacts to environment

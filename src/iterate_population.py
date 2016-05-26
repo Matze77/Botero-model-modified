@@ -34,6 +34,13 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 
     constants = model_constants
     sizes=[population._size]
+    if variable:
+        if constants["start_hgt"] and constants["hgt"]:
+            for animal in population._animals:
+                genes=animal.genes                    
+                genes[8]=0.75                    
+                animal.genes=genes
+            
     E, C = environment.evaluate(t)
     population.react(E,C,1)   #for initial random animals: all plastic animals react
     output_population(population,f1,f2,0,k,path,True,t,environment,sizes,variable) #creates plots and csv files
