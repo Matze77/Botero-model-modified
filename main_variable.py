@@ -123,7 +123,7 @@ if __name__ == '__main__':
     f3.write("Mean genes(h,s,a,I0,I0p,b,bp,mu):\n{0}\n".format(mean_genes))
     f3.write("Std genes:\n{0}\n".format(std_genes))
     for key in ['generations','L','kd','ka','tau','q','mutation','environment','environment_name','size','populations','plot_every','verbose',\
-'random_choice','desc','force_plast',"hgt",'check','kh','kt',"proc",'trans','path','use_pop','stop_half',"start_hgt"]:
+'random_choice','desc','force_plast',"hgt",'check','kh','kt',"proc",'trans','path','use_pop','stop_half',"start_hgt","stop_below","survival_goal"]:
         f3.write("{0}:\t{1}\n".format(key,constants[key]))
     
     end = time.clock()
@@ -159,6 +159,9 @@ if __name__ == '__main__':
 
         if population.size()==0:
             print("\t Population {0} died out! Time needed: {1:.2f} min".format(k+1,(end-start)/60)) 
+            return False,final_gen
+        elif float(population.size())/constants["size"] <= constants["stop_below"]:
+            print("\t Population {0} fell below critical limit! Time needed: {1:.2f} min".format(k+1,(end-start)/60)) 
             return False,final_gen
         else:
             print("\t Population {0} survived! Time needed: {1:.2f} min".format(k+1,(end-start)/60))
@@ -204,9 +207,11 @@ if __name__ == '__main__':
             a.append(out)
             if out[0]:
                 survival_rate+=1
-                f3.write("Population {0} survived!\n".format(k+1))
+                f3.write("Pop {0} survived!\n".format(k+1))
+            elif constants["stop_below"]==0:
+                f3.write("Pop {0} died at generation {1}!\n".format(k+1,out[1]))  
             else:
-                f3.write("Population {0} died at generation {1}!\n".format(k+1,out[1]))  
+                f3.write("Pop{0} fell below critical limit at generation {1}!\n".format(k+1,out[1]))  
             if float((survival_rate+constants["populations"]-k-1))/constants["populations"]<constants["survival_goal"]:
                 break
             if survival_rate>=constants["populations"]/2 and constants["stop_half"] and k<constants["populations"]/2:

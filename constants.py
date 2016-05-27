@@ -24,19 +24,19 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,100,"number of generations per run"), #default
+        ("generations",int,500,"number of generations per run"), #default
         ("L",int,5,"life time of each animal in time steps"), # 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
-        ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
-        ("mutation",str,["normal","0.01","0.0","0.0"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
+        ("q",float,2.5,"controls expected number of offspring in variable scenario"), #2.2
+        ("mutation",str,["normal","0.001","0.0","0.001"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
         the last value is the standard deviation for the mutation of this gene"), #0.001
-        ("environment",float,[100,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
+        ("environment",float,[1000,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_name",str,"","displayed name of each environment"),
         ("size",int,5000,"Specifies number of animals in each environment"),                
         ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int,10,"detailed output is plotted every N generations (0 = never)"),
+        ("plot_every",int,50,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,0,"triggers verbose output to command line"),   
         ("random_choice",bool,0,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
         ("desc",str,"RP","Description of the run appended to the path"),
@@ -48,15 +48,16 @@ _PARAMETERS = [
         ("folder",str,"","Create additional folder to put output in"),
         ("hgt",bool,0,"If HGT is turned on"),
         ("check",bool,0,"If animals check the fitness of the donor before doing HGT"),
-        ("kh",float,0.02,"constant cost of hgt"),
-        ("kt",float,0.01,"cost of each transfer"),
+        ("kh",float,0,"constant cost of hgt"),
+        ("kt",float,0,"cost of each transfer"),
 #for variable runs: 
         ("trans",bool,0,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/new/R1.00_P0.50/","set path for genes to use, if empty: path.txt is used"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/new/R1000.00_P0.20/","set path for genes to use, if empty: path.txt is used"),
         ("use_pop",int,1,"which of the populations to use for mean_genes"),
-        ("stop_half",bool,1,"Stop after half of the populations survived to save time"),
+        ("stop_half",bool,0,"Stop after half of the populations survived to save time"),
         ("start_hgt",bool,1,"If hgt is enabled: Animals start with t>0.5 in variable runs"),
-        ("survival_goal",float,0,"Goal for survival rate; Stop if too many populations died out already")
+        ("survival_goal",float,0,"Goal for survival rate; Stop if too many populations died out already"),
+        ("stop_below",float,0,"For base extinction runs: Stop if population size falls below the given fraction of the original size")
 
 ]
 # --------------------------

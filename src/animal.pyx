@@ -44,6 +44,7 @@ cdef double ka=constants["ka"]
 cdef double kh=constants["kh"]
 cdef double kt=constants["kt"]
 cdef double scale_mu=float(constants["mutation"][3]) #standard deviation for mutation of mutation rate
+cdef double mut1=float(constants["mutation"][3]) #
 
 
 
@@ -190,7 +191,7 @@ cdef class Animal:
         self.I0p = genes[4]
         self.b = genes[5]
         self.bp = genes[6]
-        self.mu = c_max(0.000001,c_min(1,genes[7]))  #to prevent mutation from stopping completely
+        self.mu = c_max(mut1,c_min(1,genes[7]))  #to prevent mutation from stopping completely
         self.t=c_max(0,c_min(1,genes[8]))   
         self.ta=c_max(0,c_min(1,genes[9]))   
     
@@ -206,7 +207,7 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     h: 1, s: [0,1], a: [0,1], I0: [-1,1], I0p: [-1,1], b: [-2,2], bp: [-2,2] ,mu: from normal/uniform distr.,t: [0,1], ta: [0,1]"""
     cdef np.ndarray[double,ndim=1] rand_numbers, rand_genes 
     cdef str distr_mut
-    cdef double mut1,mut2,r,s1,s2,t1
+    cdef double mut2,r,s1,s2,t1
     rand_numbers = np.array([randnum() for _ in np.arange(9)])
     s1=1 #values for plasticity trait
     s2=0
@@ -223,7 +224,6 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
      
 
     distr_mut=constants["mutation"][0]
-    mut1=float(constants["mutation"][1])
     mut2=float(constants["mutation"][2])
     if distr_mut=="normal":
         if mut2==0:

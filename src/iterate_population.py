@@ -79,7 +79,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
                 
         sizes.append(population._size)
         
-        if population.size() == 0:
+        if float(population.size())/constants["size"] <= constants["stop_below"]:
             break
         population.react(E,C,1)   #all plastic animals react
         end = time.clock()

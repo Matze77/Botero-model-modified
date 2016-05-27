@@ -14,7 +14,7 @@ path= "/Users/matthias/Documents/popdyn/botero-model/"
 #params=[[[1,0.10,"DBH",1],[1.0,0.20,"IP",3]]]  #dbh-ip        
 #params=[[[2.5,0.20,"DBH",1],[3,0.20,"AT",1]]] #dbh-at
 #params=[[[0.5,0.50,"RP",2],[1.5,0.50,"IP",1]]] #rp-ip
-params= [[[3,0.90,"IP",2],[3.5,0.90,"AT",1]]]  #ip-at
+#params= [[[3,0.90,"IP",2],[3.5,0.90,"AT",1]]]  #ip-at
 
 #        
 params_flat=[item for sublist in params for item in sublist]
