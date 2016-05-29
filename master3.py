@@ -34,12 +34,12 @@ def run(params):
         q=1.0
         stop=False
         while not stop:                    
-            p=" --environment {0} {1} 1 0 0 --desc {2}_{4} --folder base_extinct --path {3} --q {4}\
-            --plot_every 0 --stop_half 0 --populations 1 --generations {5} --stop_below 0.5  --mutation normal 0.001 0.0 0.0 --survival_goal 1".format(R,P,desc,path1,q,ngen) 
+            p=" --environment {0} {1} 1 0 0 --desc {2}_{4} --folder base_extinct_hgt --path {3} --q {4}\
+            --plot_every 0 --stop_half 0 --populations 1 --generations {5} --hgt 1 --stop_below 0.5  --mutation normal 0.001 0.0 0.0 --survival_goal 1".format(R,P,desc,path1,q,ngen) 
             c="python "+path+"/single_runs/"+file+p
             print(c)
             os.system(c)
-            path2=path+"/single_runs/output_variable/base_extinct/"+desc+"_"+str(q)
+            path2=path+"/single_runs/output_variable/base_extinct_hgt/"+desc+"_"+str(q)
             with open(path2+"/__overview.txt") as f3:
                 b=f3.read()               
             s=b[-27:-22]
@@ -49,7 +49,7 @@ def run(params):
                 stop=True
                 
             else:  
-                shutil.move(path2,path+"/single_runs/output_variable/base_extinct/extinct/"+desc+"_"+str(q))
+                shutil.move(path2,path+"/single_runs/output_variable/base_extinct_hgt/extinct/"+desc+"_"+str(q))
                 q+=0.1
                 q=round(q,1) 
 

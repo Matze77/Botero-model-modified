@@ -44,7 +44,7 @@ class Population:
         """Returns the current size of the population"""
         return self._size
 
-    def react(self,E,C,evolve_all=False):
+    def react(self,E,C,g,evolve_all=False):
         """Calculates the insulation of each Animal in the Population based on cue C and environment E"""   
         if not evolve_all:
             r2=np.random.rand(self._size)        
@@ -56,23 +56,19 @@ class Population:
         if self._constants["hgt"]:  
             r3=np.random.rand(self._size)
             for i,animal in enumerate(self._animals):    
-                if animal.t > 0.5:
-                    if (r3[i] <= animal.ta):
-                        j=np.random.randint(0,self._size) #animal from which to choose from
-                        if self._constants["check"]: #Payoff of donor animal is checked (directed HGT)
-                            if self._animals[j].lifetime_payoff()< animal.lifetime_payoff():
-                                animal.react(E,C,r2[i],evolve_all)#animal reacts to environment 
-                                continue    #stop this iteration if current payoff of donor animal is smaller than for the recipient animal
-                                
-                        if float(self._constants["mutation"][3])>0: #if mu is mutable, also this trait can be chosen for hgt
-                            g=np.random.randint(0,7) #gene to choose 
-                        else: 
-                            g=np.random.randint(0,6)
-                        gene=self._animals[j].genes[g] #value of this gene (from chosen animal)                
-                        genes=animal.genes                    
-                        genes[g]=gene                    
-                        animal.genes=genes
-                        animal.transfers+=1
+                if (r3[i] <= animal.t):
+                    j=np.random.randint(0,self._size) #animal from which to choose from
+                    if self._constants["check"]: #Payoff of donor animal is checked (directed HGT)
+                        if self._animals[j].lifetime_payoff()< animal.lifetime_payoff():
+                            animal.react(E,C,r2[i],evolve_all)#animal reacts to environment 
+                            continue    #stop this iteration if current payoff of donor animal is smaller than for the recipient animal
+                            
+
+                    gene=self._animals[j].genes[g] #value of this gene (from chosen animal)                
+                    genes=animal.genes                    
+                    genes[g]=gene                    
+                    animal.genes=genes
+                    animal.transfers+=1
                         
                 animal.react(E,C,r2[i],evolve_all)#animal reacts to environment               
         else:

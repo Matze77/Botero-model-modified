@@ -77,6 +77,7 @@ if __name__ == '__main__':
         for (i,row) in enumerate(reader):
             if row and row[0]!="":
                 if row[0]=="n":
+                    names=row
                     data = np.genfromtxt(f_mean,skip_header=i+1,delimiter=",") #reads mean genes and n , nperPos from csv 
                     break
                 elif (row[0][0]!="R"): 
@@ -92,6 +93,12 @@ if __name__ == '__main__':
     final_t = gen*constants["L"]*factor #final time of constant run
     data = np.genfromtxt(final_state,skip_header=1,delimiter=",") #reads genes and n , nperPos from csv file of the whole final population 
     genes1=data[:,:-1] #last column mismatch is removed
+    if constants["discrete_s"]:
+        genes1[:,1]=np.round(genes1[:,1]) #convert continous values for s to discrete values
+    if names[-2]=="ta":
+        genes1=np.delete(genes1,-2,axis=1) #delete t
+        genes1=np.insert(genes1,8,constants["mutation"][2],axis=1) #insert sc
+
     mean_genes=np.mean(genes1,axis=0)
     std_genes=np.std(genes1,axis=0)             
 
@@ -114,16 +121,18 @@ if __name__ == '__main__':
     
     try: 
         os.makedirs(path+"timeseries/")
+        if constants["save_all"]:
+                os.makedirs(path+"all_genes/")
     except OSError:
         if not os.path.isdir(path):
             raise
     f3 = open(path+"__overview.txt",'w')
     f3.write("initial conditions \n")
     f3.write("R,P,A,B,O\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
-    f3.write("Mean genes(h,s,a,I0,I0p,b,bp,mu):\n{0}\n".format(mean_genes))
+    f3.write("Mean genes(h,s,a,I0,I0p,b,bp,mu,sc,t):\n{0}\n".format(mean_genes))
     f3.write("Std genes:\n{0}\n".format(std_genes))
-    for key in ['generations','L','kd','ka','tau','q','mutation','environment','environment_name','size','populations','plot_every','verbose',\
-'random_choice','desc','force_plast',"hgt",'check','kh','kt',"proc",'trans','path','use_pop','stop_half',"start_hgt","stop_below","survival_goal"]:
+    for key in ['generations','L','kd','ka','tau','q','mutation','random_a_b',"discrete_s",'environment','environment_name','size','populations','plot_every','verbose',\
+'random_choice','desc','force_plast',"hgt",'check','kt',"proc",'trans','path','use_pop','stop_half',"stop_below","survival_goal"]:
         f3.write("{0}:\t{1}\n".format(key,constants[key]))
     
     end = time.clock()
@@ -141,9 +150,9 @@ if __name__ == '__main__':
             # write starting genes in files
 
         f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-        f1.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,t,ta,size,lin\n")        
+        f1.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,sc,t,size,lin\n")        
         f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')
-        f2.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,t,ta,size\n")
+        f2.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,sc,t,size\n")
             
         # create animals with the mean genes that shall be tested for each environment
         animals=[]

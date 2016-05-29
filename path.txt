@@ -1,1 +1,1 @@
-./output/trans_cbh_plast/R3.35_P0.17/
+./output/cbh4/

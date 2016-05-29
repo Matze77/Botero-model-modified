@@ -56,7 +56,8 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,variable=
     n= len(genes)
     data = pd.DataFrame(genes)
     mean = pd.DataFrame(data.mean())
-    mean[0]["s"]=data["s"].median() #use median instead of mean for gene s
+    if not constants["discrete_s"]:
+        mean[0]["s"]=data["s"].median() #use median instead of mean for gene s
     mean[0]["t"]=data["t"].median()
     mean=mean.transpose()   
     std = pd.DataFrame(data.std()).transpose()

@@ -24,22 +24,23 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,500,"number of generations per run"), #default
-        ("L",int,5,"life time of each animal in time steps"), # 5
+        ("generations",int,300,"number of generations per run"), 
+        ("L",int,5,"life time of each animal in time steps"), # default 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
-        ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
-        ("mutation",str,["normal","0.001","0.0","0.0"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
-        the last value is the standard deviation for the mutation of this gene"), #0.001
-        ("environment",float,[1000,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
+        ("q",float,2.1,"controls expected number of offspring in variable scenario"), #2.2
+        ("mutation",str,["0.001","0.0","0.05","0.0"],"initial mutation rate and scale of mutation steps, and their stds for mutation"), #0.001 0 0.05 0
+        ("random_a_b",bool,1,"a and b are selected randomly after mutation to plasticity"),
+        ("discrete_s",bool,1,"trait s (plasticity) is discrete (0 or 1)"),
+        ("environment",float,[1,0.5,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_name",str,"","displayed name of each environment"),
-        ("size",int,5000,"Specifies number of animals in each environment"),                
+        ("size",int,5000,"Specifies number of animals in each environment"),  #5000              
         ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int,50,"detailed output is plotted every N generations (0 = never)"),
+        ("plot_every",int,20,"detailed output is plotted every N generations (0 = never)"),
         ("verbose",bool,0,"triggers verbose output to command line"),   
         ("random_choice",bool,0,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
-        ("desc",str,"RP","Description of the run appended to the path"),
+        ("desc",str,"cbh4","Description of the run appended to the path"),
         ("time_tag",bool,0,"Set current time (+description) as folder name"),
         ("force_plast",bool,0,"Forces animals to use plastic strategy"),
         ("save_all",bool,0,"Saves all animals' genes for each generation"),
@@ -47,15 +48,14 @@ _PARAMETERS = [
         ("format",str,"pdf","Format of the figures in timeseries (png or pdf)"),
         ("folder",str,"","Create additional folder to put output in"),
         ("hgt",bool,0,"If HGT is turned on"),
-        ("check",bool,0,"If animals check the fitness of the donor before doing HGT"),
-        ("kh",float,0,"constant cost of hgt"),
-        ("kt",float,0,"cost of each transfer"),
+        ("check",bool,1,"If animals check the fitness of the donor before doing HGT"),
+        ("kt",float,0,"cost of each horizontal gene transfer"),
+        
 #for variable runs: 
-        ("trans",bool,0,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/new/R1000.00_P0.20/","set path for genes to use, if empty: path.txt is used"),
+        ("trans",bool,1,"if true, use these (changed) constants, if false, use the ones from the file"),
+        ("path",str,"","set path for genes to use, if empty: path.txt is used"),
         ("use_pop",int,1,"which of the populations to use for mean_genes"),
         ("stop_half",bool,0,"Stop after half of the populations survived to save time"),
-        ("start_hgt",bool,1,"If hgt is enabled: Animals start with t>0.5 in variable runs"),
         ("survival_goal",float,0,"Goal for survival rate; Stop if too many populations died out already"),
         ("stop_below",float,0,"For base extinction runs: Stop if population size falls below the given fraction of the original size")
 

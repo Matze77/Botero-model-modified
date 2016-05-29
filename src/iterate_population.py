@@ -34,15 +34,19 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
 
     constants = model_constants
     sizes=[population._size]
-    if variable:
-        if constants["start_hgt"] and constants["hgt"]:
-            for animal in population._animals:
-                genes=animal.genes                    
-                genes[8]=0.75                    
-                animal.genes=genes
-            
+
+    if float(constants["mutation"][1])>0: #if mu is mutable, also this trait can be chosen for hgt
+        if float(constants["mutation"][3])>0: #if sc is mutable                          
+            g=np.arange(0,9) #genes to choose from
+        else:
+            g=np.arange(0,8) 
+    elif float(constants["mutation"][3])>0: 
+        g=np.delete(np.arange(0,9),7)
+    else:
+        g=np.arange(0,8)
+        
     E, C = environment.evaluate(t)
-    population.react(E,C,1)   #for initial random animals: all plastic animals react
+    population.react(E,C,g,1)   #for initial random animals: all plastic animals react
     output_population(population,f1,f2,0,k,path,True,t,environment,sizes,variable) #creates plots and csv files
     for j in np.arange(1,constants["generations"]+1):  
         # MAIN TIME STEP LOOP
@@ -50,14 +54,14 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         for _ in range(constants["L"]): #loop for time steps in each animal's life        
             t = t+1
             E, C = environment.evaluate(t) #calculate E,C at time t for all environment
-            population.react(E,C) #animals react to environment
+            population.react(E,C,g) #animals react to environment
 
           
         output_population(population,f1,f2,j,k,path,False,t,environment,sizes,variable) #creates plots and csv files
                 
         if constants["save_all"]:
             f3 = open(path+"all_genes/pop{0}_gen{1}.csv".format(k,j),'w')
-            f3.write("h,s,a,I0,I0p,b,bp,mu,t,ta,M,W,I,A,T,lin\n")
+            f3.write("h,s,a,I0,I0p,b,bp,mu,sc,t,M,W,I,A,T,lin\n")
             for a in population.animals():
                 for i,g in enumerate(a.genes):
                     if i!=0:
@@ -81,7 +85,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         
         if float(population.size())/constants["size"] <= constants["stop_below"]:
             break
-        population.react(E,C,1)   #all plastic animals react
+        population.react(E,C,g,1)   #all plastic animals react
         end = time.clock()
         if constants["verbose"]:
             print("Computation time: {0:.2e}s".format(end-start))
