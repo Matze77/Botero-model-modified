@@ -44,7 +44,7 @@ cdef double ka=constants["ka"]
 cdef double kh=constants["kh"]
 cdef double kt=constants["kt"]
 cdef double scale_mu=float(constants["mutation"][3]) #standard deviation for mutation of mutation rate
-cdef double mut1=float(constants["mutation"][3]) #
+cdef double mut1=float(constants["mutation"][1]) #
 
 
 

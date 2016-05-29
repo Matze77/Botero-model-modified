@@ -29,8 +29,8 @@ _PARAMETERS = [
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
-        ("q",float,2.5,"controls expected number of offspring in variable scenario"), #2.2
-        ("mutation",str,["normal","0.001","0.0","0.001"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
+        ("q",float,2.2,"controls expected number of offspring in variable scenario"), #2.2
+        ("mutation",str,["normal","0.001","0.0","0.0"],"take initial mutation rate from normal (with mean value and std) or uniform (min and max) distribution; \
         the last value is the standard deviation for the mutation of this gene"), #0.001
         ("environment",float,[1000,0.1,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
         ("environment_name",str,"","displayed name of each environment"),

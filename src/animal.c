@@ -9754,7 +9754,7 @@ PyMODINIT_FUNC PyInit_animal(void)
  * cdef double kh=constants["kh"]
  * cdef double kt=constants["kt"]             # <<<<<<<<<<<<<<
  * cdef double scale_mu=float(constants["mutation"][3]) #standard deviation for mutation of mutation rate
- * cdef double mut1=float(constants["mutation"][3]) #
+ * cdef double mut1=float(constants["mutation"][1]) #
  */
   __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_constants); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
@@ -9769,7 +9769,7 @@ PyMODINIT_FUNC PyInit_animal(void)
  * cdef double kh=constants["kh"]
  * cdef double kt=constants["kt"]
  * cdef double scale_mu=float(constants["mutation"][3]) #standard deviation for mutation of mutation rate             # <<<<<<<<<<<<<<
- * cdef double mut1=float(constants["mutation"][3]) #
+ * cdef double mut1=float(constants["mutation"][1]) #
  * 
  */
   __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_constants); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -9787,7 +9787,7 @@ PyMODINIT_FUNC PyInit_animal(void)
   /* "animal.pyx":47
  * cdef double kt=constants["kt"]
  * cdef double scale_mu=float(constants["mutation"][3]) #standard deviation for mutation of mutation rate
- * cdef double mut1=float(constants["mutation"][3]) #             # <<<<<<<<<<<<<<
+ * cdef double mut1=float(constants["mutation"][1]) #             # <<<<<<<<<<<<<<
  * 
  * 
  */
@@ -9796,7 +9796,7 @@ PyMODINIT_FUNC PyInit_animal(void)
   __pyx_t_1 = PyObject_GetItem(__pyx_t_2, __pyx_n_s_mutation); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = __Pyx_PyObject_AsDouble(__pyx_t_2); if (unlikely(__pyx_t_3 == ((double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}

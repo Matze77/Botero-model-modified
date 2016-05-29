@@ -1,1 +1,1 @@
-./output/new_start/R10000.00_P0.80/
+./output/trans_cbh_plast/R3.35_P0.17/
