@@ -75,7 +75,7 @@ class Population:
             for i,animal in enumerate(self._animals):  
                 animal.react(E,C,r2[i],evolve_all)#animal reacts to environment
                 
-    def breed_constant(self):
+    def breed_constant(self,j):
         """Iterates the entire Population to a new generation, calculating the number of offspring of each Animal with CONSTANT population size"""
         calc_payoff     = np.vectorize(lambda x: x.lifetime_payoff())
         lifetime_payoff = calc_payoff(self._animals)
@@ -118,15 +118,18 @@ class Population:
                     m=np.argmax(pf)
                     pf[m]=0 #to ensure that not all additional offspring is from one animal
                     offspring[m]+=1  
-        born_animals = np.repeat(self._animals,offspring) # Create list with offspring repeats for each animal (cloned animals)      
-        mutate_pop = np.vectorize(lambda x: Animal(x.mutate(),x.lineage)) #animals are created with mutated genes of their parents
+        born_animals = np.repeat(self._animals,offspring) # Create list with offspring repeats for each animal (cloned animals) 
+        if j>self._constants["stop_mutation"] and self._constants["stop_mutation"]!=0:
+            mutate_pop = np.vectorize(lambda x: Animal(x.genes,x.lineage)) #no mutation is done 
+        else:
+            mutate_pop = np.vectorize(lambda x: Animal(x.mutate(),x.lineage)) #animals are created with mutated genes of their parents
         new_animals = mutate_pop(born_animals) #create and mutate offspring (use mutated genes as parent genes)      
         self._animals = new_animals 
         if self._constants["verbose"]:
             print("Population size: {0}\tMean payoff: {1:.2f}".format(population_size,mean_payoff))
         return d
  #   @jit
-    def breed_variable(self):
+    def breed_variable(self,j):
         """Iterates the entire Population to a new generation, calculating the number of offspring of each Animal with VARIABLE population size"""
         calc_payoff     = np.vectorize(lambda x: x.lifetime_payoff())
         lifetime_payoff = calc_payoff(self._animals)

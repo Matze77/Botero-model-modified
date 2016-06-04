@@ -131,8 +131,8 @@ if __name__ == '__main__':
     f3.write("R,P,A,B,O\n{0},{1},{2},{3},{5}\n".format(env.R,env.P,env.A,env.B,i,env.O))
     f3.write("Mean genes(h,s,a,I0,I0p,b,bp,mu,sc,t):\n{0}\n".format(mean_genes))
     f3.write("Std genes:\n{0}\n".format(std_genes))
-    for key in ['generations','L','kd','ka','tau','q','mutation','random_a_b',"discrete_s",'environment','environment_name','size','populations','plot_every','verbose',\
-'random_choice','desc','force_plast',"hgt",'check','kt',"proc",'trans','path','use_pop','stop_half',"stop_below","survival_goal"]:
+    for key in ['generations','L','kd','ka','tau','q','mutation',"stop_mutation",'random_a_b',"discrete_s",'environment','environment_name','size','populations','plot_every','verbose',\
+'random_choice','desc','force_plast',"hgt",'check','kt','std_min',"proc",'trans','path','use_pop','stop_half',"stop_below","survival_goal"]:
         f3.write("{0}:\t{1}\n".format(key,constants[key]))
     
     end = time.clock()
@@ -150,9 +150,9 @@ if __name__ == '__main__':
             # write starting genes in files
 
         f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-        f1.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,sc,t,size,lin\n")        
+        f1.write("\nn,I0,I0p,W,a,b,bp,h,mu,s,sc,t,size,lin\n")        
         f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')
-        f2.write("\nn,I0,I0p,payoff,a,b,bp,h,mu,s,sc,t,size\n")
+        f2.write("\nn,I0,I0p,W,a,b,bp,h,mu,s,sc,t,size\n")
             
         # create animals with the mean genes that shall be tested for each environment
         animals=[]
@@ -169,8 +169,8 @@ if __name__ == '__main__':
         if population.size()==0:
             print("\t Population {0} died out! Time needed: {1:.2f} min".format(k+1,(end-start)/60)) 
             return False,final_gen
-        elif float(population.size())/constants["size"] <= constants["stop_below"]:
-            print("\t Population {0} fell below critical limit! Time needed: {1:.2f} min".format(k+1,(end-start)/60)) 
+        elif float(population.size())/constants["size"] <= float(constants["stop_below"][0]):
+            print("\t Population {0} below critical limit! Time needed: {1:.2f} min".format(k+1,(end-start)/60)) 
             return False,final_gen
         else:
             print("\t Population {0} survived! Time needed: {1:.2f} min".format(k+1,(end-start)/60))
@@ -217,10 +217,10 @@ if __name__ == '__main__':
             if out[0]:
                 survival_rate+=1
                 f3.write("Pop {0} survived!\n".format(k+1))
-            elif constants["stop_below"]==0:
+            elif float(constants["stop_below"][0])==0:
                 f3.write("Pop {0} died at generation {1}!\n".format(k+1,out[1]))  
             else:
-                f3.write("Pop{0} fell below critical limit at generation {1}!\n".format(k+1,out[1]))  
+                f3.write("Pop{0} below critical limit at generation {1}!\n".format(k+1,out[1]))  
             if float((survival_rate+constants["populations"]-k-1))/constants["populations"]<constants["survival_goal"]:
                 break
             if survival_rate>=constants["populations"]/2 and constants["stop_half"] and k<constants["populations"]/2:

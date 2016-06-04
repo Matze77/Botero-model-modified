@@ -24,40 +24,44 @@
 # Change default values here
 
 _PARAMETERS = [
-        ("generations",int,300,"number of generations per run"), 
+        ("generations",int,5000,"number of generations per run"), 
+        ("populations",int,1,"number of identical populations per run"), 
         ("L",int,5,"life time of each animal in time steps"), # default 5
         ("kd",float,0.02,"constant cost of plasticity"), #0.02
         ("ka",float,0.01,"cost of each adaptation"), #0.01
         ("tau",float,0.25,"coefficient of lifetime payoff exponential"), #0.25
-        ("q",float,2.1,"controls expected number of offspring in variable scenario"), #2.2
-        ("mutation",str,["0.001","0.0","0.05","0.0"],"initial mutation rate and scale of mutation steps, and their stds for mutation"), #0.001 0 0.05 0
-        ("random_a_b",bool,1,"a and b are selected randomly after mutation to plasticity"),
-        ("discrete_s",bool,1,"trait s (plasticity) is discrete (0 or 1)"),
-        ("environment",float,[1,0.5,1,0,0], "parameters of each environment "+ "in the form R P A B O"),
+        ("environment",float,[10,0.0,1,0,0], "parameters of each environment in the form R P A B O"),
         ("environment_name",str,"","displayed name of each environment"),
-        ("size",int,5000,"Specifies number of animals in each environment"),  #5000              
-        ("populations",int,1,"number of identical populations per run"), 
-        ("plot_every",int,20,"detailed output is plotted every N generations (0 = never)"),
-        ("verbose",bool,0,"triggers verbose output to command line"),   
-        ("random_choice",bool,0,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
-        ("desc",str,"cbh4","Description of the run appended to the path"),
-        ("time_tag",bool,0,"Set current time (+description) as folder name"),
-        ("force_plast",bool,0,"Forces animals to use plastic strategy"),
-        ("save_all",bool,0,"Saves all animals' genes for each generation"),
-        ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
+        ("size",int,5000,"Specifies number of animals in each environment"),  #5000     
+        ("folder",str,"test","Create additional folder to put output in"),
         ("format",str,"pdf","Format of the figures in timeseries (png or pdf)"),
-        ("folder",str,"","Create additional folder to put output in"),
+        ("random_choice",bool,0,"If animals for cloning/killing should be chosen at random or dependent on fitness"),
+        ("verbose",bool,0,"triggers verbose output to command line"),   
+        ("desc",str,"","Description of the run appended to the path"),
+        ("time_tag",bool,0,"Set current time (+description) as folder name"),
+        ("save_all",bool,0,"Saves all animals' genes for each generation"),
+        ("force_plast",bool,0,"Forces animals to use plastic strategy"),
+        ("proc",int,1,"Number of processes (populations) that are executed at the same time"),
+        ("std_min",float,[0],"Stop loop when desired standard deviation for the desired genes is  reached"),
+
+        ("mutation",float,[0.001,0.0,0.05,0.0],"initial mutation rate and scale of mutation steps, and their stds for mutation"), #0.001 0 0.05 0
+        ("stop_mutation",int,0,"Stops mutation after the given number of generations, 0 disables the feature"),
+        ("random_a_b",bool,0,"a and b are selected randomly after mutation to plasticity"),
+        ("discrete_s",bool,0,"trait s (plasticity) is discrete (0 or 1)"),
+        ("h_random",bool,1,"if h is distributed randomly at the beginning"),
+        ("plot_every",int,100,"detailed output is plotted every N generations (0 = never)"),
         ("hgt",bool,0,"If HGT is turned on"),
         ("check",bool,1,"If animals check the fitness of the donor before doing HGT"),
         ("kt",float,0,"cost of each horizontal gene transfer"),
         
 #for variable runs: 
+        ("q",float,2.1,"controls expected number of offspring in variable scenario"), #2.2
         ("trans",bool,1,"if true, use these (changed) constants, if false, use the ones from the file"),
-        ("path",str,"","set path for genes to use, if empty: path.txt is used"),
+        ("path",str,"/Users/matthias/Documents/popdyn/botero-model/Output_to_analyze/botero_compare/new/R10.00_P0.10/","set path for genes to use, if empty: path.txt is used"),
         ("use_pop",int,1,"which of the populations to use for mean_genes"),
         ("stop_half",bool,0,"Stop after half of the populations survived to save time"),
         ("survival_goal",float,0,"Goal for survival rate; Stop if too many populations died out already"),
-        ("stop_below",float,0,"For base extinction runs: Stop if population size falls below the given fraction of the original size")
+        ("stop_below",float,[0,0],"For base extinction runs: Stop if population size falls below the given fraction of the original size after the given number of generations"),
 
 ]
 # --------------------------
@@ -92,13 +96,18 @@ model_constants = ModelConstants()
 parser = argparse.ArgumentParser()
 
 for key in _PARAMETERS:
-    if key[0] in ["environment"]: # Setting R,P,A,B,O for each environment
+    if key[0] in ["environment"]: # Setting R,P,A,B,O 
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs=5,help=key[3])
-    elif key[0] in ["mutation"]: # Setting R,P,A,B,O for each environment
+    elif key[0] in ["mutation"]: # Setting mutation parameters
         parser.add_argument("--"+key[0],type=key[1],action="append",nargs=4,help=key[3])
+    elif key[0] in ["stop_below"]: 
+        parser.add_argument("--"+key[0],type=key[1],action="append",nargs=2,help=key[3])
+    elif key[0] in ["std_min"]: 
+        parser.add_argument("--"+key[0],type=key[1],action="append",nargs="*",help=key[3])
     elif key[1]==bool: # Flags (true or false, no argument)
         parser.add_argument("--"+key[0],type=int,help=key[3])
     else: # Ordinary, single arguments (all optional)
+        
         parser.add_argument("--"+key[0],type=key[1],help=key[3])
 
 # Not included in _PARAMETERS, needs to be parsed outside of the loop
@@ -110,7 +119,7 @@ args = parser.parse_args().__dict__
 # Update model_constants object with read parameters
 for key in _PARAMETERS:   
     if args[key[0]] or args[key[0]]==0:
-        if key[0] in['environment',"mutation"]:
+        if key[0] in['environment','mutation','stop_below','std_min']:
             val=args[key[0]][0]
         elif key[1]==bool:
             val=bool(args[key[0]])

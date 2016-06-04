@@ -47,6 +47,7 @@ cdef double scale_mu=float(constants["mutation"][1]) #standard deviation for mut
 cdef double sc1=float(constants["mutation"][2]) 
 cdef double scale_sc=float(constants["mutation"][3]) 
 cdef bool random_a_b=constants["random_a_b"]
+cdef bool h_random=constants["h_random"]
 
 
 cdef class Animal:
@@ -124,14 +125,14 @@ cdef class Animal:
             if (r<=self.mu):
                 mutation_step = np.random.normal(loc=0,scale=scale_mu)  #mutate mutation rate with much lower step size
                 new_genes[7] += mutation_step
-                self.mu=new_genes[7]
+                self.mu = c_max(mut1,c_min(1,new_genes[7])) 
                 
         if scale_sc>0.0:
             r = np.random.rand()  
             if (r<=self.mu):
                 mutation_step = np.random.normal(loc=0,scale=scale_sc)  #mutate scale of mutation 
                 new_genes[8] += mutation_step
-                self.sc=new_genes[8]
+                self.sc=c_max(sc1,new_genes[8])   
                 
         r1=np.random.rand(3)
         for i,k in enumerate([0,3,4]): #genes modified for all individuals: h, I0, I0'
@@ -200,7 +201,7 @@ cdef class Animal:
         self.b = genes[5]
         self.bp = genes[6]
         self.mu = c_max(mut1,c_min(1,genes[7]))  #to prevent mutation from falling below initial value
-        self.sc=c_max(0,genes[8])   
+        self.sc=c_max(sc1,genes[8])   
         self.t=c_max(0,c_min(1,genes[9]))       
 
 
@@ -214,7 +215,8 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     h: 1, s: [0,1], a: [0,1], I0: [-1,1], I0p: [-1,1], b: [-2,2], bp: [-2,2] ,mu: mut1, sc: sc1, t: [0,1], ta: [0,1]"""
     cdef np.ndarray[double,ndim=1] rand_numbers, rand_genes 
     cdef str distr_mut
-    cdef double mut2,r,s1,s2,t1
+    cdef double mut2,r,s1,s2,t1,h1,h2
+
     rand_numbers = np.random.rand(8)
     s1=1 #values for plasticity trait
     s2=0
@@ -226,7 +228,12 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     t1=0
     if constants["hgt"]:
         t1=1
-    rand_genes = [0,s1,1,2,2,4,4,t1]*rand_numbers+[1,s2,0,-1,-1,-2,-2,0]
+    h1=0
+    h2=1
+    if h_random:
+        h1=1
+        h2=0
+    rand_genes = [h1,s1,1,2,2,4,4,t1]*rand_numbers+[h2,s2,0,-1,-1,-2,-2,0]
 
     if (rand_genes[1]<=0.5):
         rand_genes[2], rand_genes[5], rand_genes[6]  = 0, 0, 0

@@ -57,7 +57,7 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
             population.react(E,C,g) #animals react to environment
 
           
-        output_population(population,f1,f2,j,k,path,False,t,environment,sizes,variable) #creates plots and csv files
+        mean,std=output_population(population,f1,f2,j,k,path,False,t,environment,sizes,variable) #creates plots and csv files
                 
         if constants["save_all"]:
             f3 = open(path+"all_genes/pop{0}_gen{1}.csv".format(k,j),'w')
@@ -77,13 +77,13 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
             f3.close()
         
         if variable:
-            population.breed_variable() #old generation is replaced by new one
+            population.breed_variable(j) #old generation is replaced by new one
         else:
-            population.breed_constant()
+            population.breed_constant(j)
                 
         sizes.append(population._size)
         
-        if float(population.size())/constants["size"] <= constants["stop_below"]:
+        if (float(population.size())/constants["size"] <= float(constants["stop_below"][0]) and j>float(constants["stop_below"][1])) or population.size()==0:
             break
         population.react(E,C,g,1)   #all plastic animals react
         end = time.clock()
@@ -95,8 +95,23 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         hashes = '#' * int(round(percent * 20))
         spaces = ' ' * (20 - len(hashes))
         sys.stdout.write("\rProgress population {2} of {3}: [{0}] {1:.1f}%".format(hashes + spaces, percent * 100,k+1,constants["populations"]))
-        sys.stdout.flush()                             
-
+        sys.stdout.flush()               
+              
+        stop=False
+        std_min=constants["std_min"][0]
+        if std_min>0:
+            stop=True
+            for c,l in enumerate(["I0","I0p","a","b","bp","h","s"]):
+                if c not in constants["std_min"][1:]:
+                    continue
+                #print(std[l])
+                if float(std[l])>std_min:   
+                    stop=False
+                                  
+     
+        if stop: #if all std above are <std_min: break loop
+            print("\n Desired std reached, loop stopped after {0} generations!".format(j))
+            break
 
 
     # Final outputs for each population

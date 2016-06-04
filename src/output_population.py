@@ -52,7 +52,7 @@ def output_population(population,f1,f2,j,k,path,force_plot,t,env,sizes,variable=
     #print(genes) 
 
     for a,animal in enumerate(animals):
-        genes[a]["W"]=animal.lifetime_payoff() #add mismatch for plotting later
+        genes[a]["W"]=animal.lifetime_payoff() #add payoff for plotting later
     n= len(genes)
     data = pd.DataFrame(genes)
     mean = pd.DataFrame(data.mean())
@@ -113,7 +113,7 @@ def plot_situation(j,data,n,env,filename,sizes,variable=False):
         ax = plt.subplot2grid((rows,1),(0,0))       
         ax.plot(sizes,"-",lw=0.7)
         ax.set_xlim(0,j+1)
-        ax.set_xlabel("Time",fontsize=fsize)
+        ax.set_xlabel("Generations",fontsize=fsize)
         ax.set_ylim(0,constants["size"]+200)
         ax.set_ylabel("Size",fontsize=fsize)
         plt.tick_params(axis='both', which='both', labelsize=fsize)
@@ -135,17 +135,17 @@ def plot_situation(j,data,n,env,filename,sizes,variable=False):
         ax.set_ylabel("Value distribution",fontsize=fsize)
         plt.tick_params(axis='both', which='both', labelsize=fsize)
         ax1 = plt.subplot2grid((rows,1),(index+2,0),rowspan=2)
-        scale = 5*constants["L"]*env.R #5 whole cycles per plot
-        if j <= constants["L"]*constants["generations"]:
+        scale = 5*env.R #5 whole cycles per plot
+        if j <= constants["generations"]:
 
-            j0 = np.arange(min(max(0,j-scale/2), np.abs(constants["L"]*constants["generations"]-scale)) ,min(constants["L"]*constants["generations"],max(j+scale/2,scale)),0.01*env.R*constants["L"]) #star always in the middle except at beginning and end
+            j0 = np.arange(min(max(0,j-scale/2), np.abs(constants["generations"]-scale)) ,min(constants["generations"],max(j+scale/2,scale)),0.01*env.R) #star always in the middle except at beginning and end
         else:
-            j0 = np.arange(j-scale/2,j+scale/2,0.01*env.R*constants["L"])
-        ax1.plot(j0,np.array(list(map(env.evaluate,j0)))[:,0],linewidth=0.7) #plot E(t)
-        ax1.scatter(j,env.evaluate(j)[0],s=100,marker='*') #show actual time as *
+            j0 = np.arange(j-scale/2,j+scale/2,0.01*env.R)
+        ax1.plot(j0,np.array(list(map(env.evaluate,j0*constants["L"])))[:,0],linewidth=0.7) #plot E(t)
+        ax1.scatter(j,env.evaluate(j*constants["L"])[0],s=100,marker='*') #show actual time as *
         ax1.set_ylim(-2,2)
         ax1.set_xlim(j0[0],j0[-1]) 
-        ax1.set_xlabel("Time t",fontsize=fsize)
+        ax1.set_xlabel("Generations",fontsize=fsize)
         ax1.set_ylabel("E",fontsize=fsize)#labels und überschriften
         plt.tick_params(axis='both', which='both', labelsize=fsize)
     plt.suptitle("The situation at generation"+str(j),fontsize=17)

@@ -8,7 +8,7 @@ import os
 from multiprocessing import Pool
 
 p=1
-path= "/Users/matthias/Documents/popdyn/botero-model/single_runs/"
+path= "/Users/matthias/Documents/popdyn/botero-model/fair_stop/"
 
 def run(line):
         c="python "+path+file+" "+line
@@ -17,7 +17,7 @@ def run(line):
 
 lines=[]
 
-with open(path+"/runs/based_all.txt","r") as f:
+with open(path+"/runs/constant_dbh.txt","r") as f:
     file=f.readline()
     line=f.readline()
     lines.append(line)
@@ -39,9 +39,10 @@ list1.append(list2)
 '''Run p number of processes simultaneously'''
 
 a=[]
-for l in list1:
+for l in list1[:-1]:
     if len(l)!=0:
         pool=Pool(processes=len(l))
+        print(l)
         a.extend(pool.map(run,l))    
         pool.terminate()
 
