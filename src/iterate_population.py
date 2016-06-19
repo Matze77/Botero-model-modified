@@ -98,10 +98,10 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         sys.stdout.flush()               
               
         stop=False
-        std_min=constants["std_min"][0]
-        if std_min>0:
+        std_min=constants["std_min"][1]
+        if j>constants["std_min"][0] and std_min>0:
             stop=True
-            for c,l in enumerate(["I0","I0p","a","b","bp","h","s"]):
+            for c,l in enumerate(["I0","I0p","W","a","b","bp","h","mu","s","sc","t"]):
                 if c not in constants["std_min"][1:]:
                     continue
                 #print(std[l])

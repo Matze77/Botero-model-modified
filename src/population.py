@@ -48,11 +48,13 @@ class Population:
         """Calculates the insulation of each Animal in the Population based on cue C and environment E"""   
         if not evolve_all:
             r2=np.random.rand(self._size)        
-        else:
+        elif not self._constants["no_dbh"]:
             r1=np.random.rand(self._size)
             for i,animal in enumerate(self._animals): 
                 animal.choose_set(r1[i]) #After birth: choose primed or unprimed gene set for each animal
             r2=np.empty(self._size) #random numbers for adjustments not needed, as adjustment after birth is obligatory 
+        else:
+            r2=np.empty(self._size) 
         if self._constants["hgt"]:  
             r3=np.random.rand(self._size)
             for i,animal in enumerate(self._animals):    

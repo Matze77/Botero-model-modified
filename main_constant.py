@@ -92,7 +92,7 @@ if __name__ == '__main__':
     p.close()
     # write simulation parameters
     f = open(path+"parameters.txt","w")
-    for key in ['generations','L','kd','ka','tau','q','mutation',"stop_mutation","discrete_s",'random_a_b','environment','environment_name','size','populations',\
+    for key in ['generations','L','kd','ka','tau','q','mutation',"stop_mutation","h_random","no_dbh","discrete_s",'random_a_b','I0off','environment','environment_name','size','populations',\
 'random_choice','force_plast',"proc",'hgt','check','kt','std_min']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    

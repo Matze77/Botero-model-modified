@@ -94,7 +94,7 @@ cdef class Animal:
 
     cpdef react(self,double E, double C, double r,BTYPE_t evolve_all=0):
         """Animal migrates and reacts to environment E and cue C. If evolve_all is set, reaction takes place for all animals, regardless of gene 'a'."""
-        cdef float new_insulation        
+        cdef float new_insulation      
         if self.s > 0.5:         
             if ((r<= self.a) | evolve_all):#draws random number to determine whether the animal adjusts its insulation (just for plastic ones)
                 if self.primed:
@@ -133,13 +133,20 @@ cdef class Animal:
                 mutation_step = np.random.normal(loc=0,scale=scale_sc)  #mutate scale of mutation 
                 new_genes[8] += mutation_step
                 self.sc=c_max(sc1,new_genes[8])   
-                
-        r1=np.random.rand(3)
-        for i,k in enumerate([0,3,4]): #genes modified for all individuals: h, I0, I0'
-            if (r1[i]<=self.mu):
-                mutation_step = np.random.normal(loc=0,scale=self.sc)
-                new_genes[k] += mutation_step
-                
+        
+        mutg=np.array([0,3,4]) #genes modified for all individuals: h, I0, I0'
+        if constants["I0off"]:
+            mutg=mutg[0:1] #I0 and I0' are not modified
+        if constants["no_dbh"]:
+            mutg=np.delete(mutg,0) #if no_dbh is chosen, h is not modified;
+
+        if len(mutg)!=0:
+            r1=np.random.rand(len(mutg))
+            for i,k in enumerate(mutg): 
+                if (r1[i]<=self.mu):
+                    mutation_step = np.random.normal(loc=0,scale=self.sc)
+                    new_genes[k] += mutation_step
+                    
         r=np.random.rand()  
         if (r<=self.mu):
                 if constants["discrete_s"]:
@@ -155,7 +162,7 @@ cdef class Animal:
                         new_genes[6]=r1[2]*4-2
                 
         
-        if new_genes[1] > 0.5: # other genes modified if individual is plastic (s>0.5): a , b, b'
+        if new_genes[1] > 0.5 or constants["evolve_a_b"]: # other genes modified if individual is plastic (s>0.5): a , b, b'
             r1=np.random.rand(3)    
             for i,k in enumerate([2,5,6]):
                 if (r1[i]<=self.mu):
@@ -220,6 +227,10 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     rand_numbers = np.random.rand(8)
     s1=1 #values for plasticity trait
     s2=0
+    if constants["I0off"]:
+        rand_numbers[3]=0.5
+        rand_numbers[4]=0.5
+
     if constants["discrete_s"]:
         rand_numbers[1]=np.random.randint(2)
     if constants["force_plast"]: #to force s in [0.5,1]
@@ -235,7 +246,7 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
         h2=0
     rand_genes = [h1,s1,1,2,2,4,4,t1]*rand_numbers+[h2,s2,0,-1,-1,-2,-2,0]
 
-    if (rand_genes[1]<=0.5):
+    if (rand_genes[1]<=0.5 and not constants["evolve_a_b"]):
         rand_genes[2], rand_genes[5], rand_genes[6]  = 0, 0, 0
      
     rand_genes=np.insert(rand_genes,7,mut1)  #insert mutation rate in rand_genes before t and ta

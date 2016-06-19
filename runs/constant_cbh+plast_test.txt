@@ -1,0 +1,15 @@
+--environment 31.6228 0.2 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R31.62_P0.20 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 31.6228 0.3 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R31.62_P0.30 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 31.6228 0.5 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R31.62_P0.50 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 31.6228 0.7 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R31.62_P0.70 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 31.6228 0.9 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R31.62_P0.90 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 100.0 0.2 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R100.00_P0.20 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 100.0 0.3 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R100.00_P0.30 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 100.0 0.5 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R100.00_P0.50 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 100.0 0.7 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R100.00_P0.70 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 100.0 0.9 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R100.00_P0.90 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 316.2278 0.2 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R316.23_P0.20 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 316.2278 0.3 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R316.23_P0.30 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 316.2278 0.5 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R316.23_P0.50 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 316.2278 0.7 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R316.23_P0.70 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
+--environment 316.2278 0.9 1 0 0 --h_random 0 --no_dbh 1 --I0off 1 --evolve_a_b 0 --desc R316.23_P0.90 --plot_every 200 --folder cbh+plast --populations 5 --generations 5000 
