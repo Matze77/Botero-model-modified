@@ -102,17 +102,19 @@ def iterate_population(k,population,environment,f1,f2,path,t=0,variable=False):
         if j>constants["std_min"][0] and std_min>0:
             stop=True
             for c,l in enumerate(["I0","I0p","W","a","b","bp","h","mu","s","sc","t"]):
-                if c not in constants["std_min"][1:]:
+                if c not in constants["std_min"][2:] and len(constants["std_min"])>2:
                     continue
                 #print(std[l])
                 if float(std[l])>std_min:   
                     stop=False
                                   
-     
+        if constants["lineage_stop"] and max(np.bincount(population.lineage()))==len(population._animals):
+            print("\n Common ancestry reached, loop stopped after {0} generations!".format(j))
+            break                          
         if stop: #if all std above are <std_min: break loop
             print("\n Desired std reached, loop stopped after {0} generations!".format(j))
             break
-
+        
 
     # Final outputs for each population
     final_mean, final_std = output_population(population,f1,f2,j,k,path,True,t,environment,sizes,variable) #force last plot

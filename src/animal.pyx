@@ -219,7 +219,7 @@ cdef class Animal:
 
 cdef inline np.ndarray[double,ndim=1] random_genes():
     """Returns random values for the 10 genes in the chosen intervals:
-    h: 1, s: [0,1], a: [0,1], I0: [-1,1], I0p: [-1,1], b: [-2,2], bp: [-2,2] ,mu: mut1, sc: sc1, t: [0,1], ta: [0,1]"""
+    h: 1, s: [0,1], a: [0,1], I0: [-1,1], I0p: [-1,1], b: [-2,2], bp: [-2,2] ,mu: mut1, sc: sc1, t: [0,1]"""
     cdef np.ndarray[double,ndim=1] rand_numbers, rand_genes 
     cdef str distr_mut
     cdef double mut2,r,s1,s2,t1,h1,h2
@@ -249,7 +249,7 @@ cdef inline np.ndarray[double,ndim=1] random_genes():
     if (rand_genes[1]<=0.5 and not constants["evolve_a_b"]):
         rand_genes[2], rand_genes[5], rand_genes[6]  = 0, 0, 0
      
-    rand_genes=np.insert(rand_genes,7,mut1)  #insert mutation rate in rand_genes before t and ta
+    rand_genes=np.insert(rand_genes,7,mut1)  #insert mutation rate in rand_genes before t
     rand_genes=np.insert(rand_genes,8,sc1)
         
     return rand_genes

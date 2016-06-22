@@ -92,7 +92,7 @@ if __name__ == '__main__':
     p.close()
     # write simulation parameters
     f = open(path+"parameters.txt","w")
-    for key in ['generations','L','kd','ka','tau','q','mutation',"stop_mutation","h_random","no_dbh","discrete_s",'random_a_b','I0off','environment','environment_name','size','populations',\
+    for key in ['generations','L','kd','ka','tau','q','mutation',"stop_mutation",'evolve_a_b',"h_random","no_dbh","discrete_s",'random_a_b','I0off','environment','environment_name','size','populations',\
 'random_choice','force_plast',"proc",'hgt','check','kt','std_min']:
         f.write("{0}:\t{1}\n".format(key,constants[key]))
     f.close()    
@@ -122,46 +122,49 @@ if __name__ == '__main__':
 
 
     # main loop over multiple populations
-    error_occured = False
-    
+    if constants["path"]!="":
+        final_state=constants["path"]+ "pop{0}_final_state.csv".format(constants["use_pop"])  #specify path to csv file in constants (from run with constant pop size) 
+        data = np.genfromtxt(final_state,skip_header=1,delimiter=",") #reads genes and n , nperPos from csv file of the whole final population 
+        genes1=data[:,:-1] #last column payoff is removed      
+
+    else:      
+        final_state=0
+        
     rand1=np.random.randint(0,10**3) #different random number seed for every time the program is started
     def main(k):
             np.random.seed(rand1+k) #to prevent the same seeds for simultaneously run populations 
             start = time.clock()         
-            # in case a population dies out, it is repeated
-            repeat = True
-            animal_list=[]
-            while repeat:             
-                    # create animals in each environment according to size that already have the correct random genes
-                animal_list.extend([Animal(np.array([]),lineage=_) for _ in range(constants["size"])]) #if only one value is given
-                # create a Population from animal_list
-    #            for a in animal_list:
-    #                print(a.genes)
-                population = Population(population_size,animal_list)
+            animals=[]
+                # create animals according to size that already have the correct random genes
+            if final_state==0:
+                animals.extend([Animal(np.array([]),lineage=_) for _ in range(constants["size"])]) #if only one value is given
+            else:
+                animals.extend([Animal(np.array(g),lineage=l) for l,g in enumerate(genes1[:constants["size"]])])
+               # animals= [item for sublist in animals for item in sublist] # flatten animal list 
     
-                end = time.clock()
-                if constants["verbose"]:
-                    print("Set-up time: {0:.2e}s\n".format(end-start))
-                start = time.clock()
-    
-                # initial output
-                f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
-                f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')            
-                f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
-                f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
-    
-                f1.write("\nn,I0,I0p,W,a,b,bp,h,mu,s,sc,t,lin\n")
-                f2.write("\nn,I0,I0p,W,a,b,bp,h,mu,s,sc,t\n")
-                        
-                # iterate on the population and create outputs
-                try:
-                    #%timeit iterate_population(k,population,environment,f1,f2,path)
-                    pop_mean, pop_std, _ = iterate_population(k,population,env,f1,f2,path) #create plots and return values for last generation
-                    repeat = False #if pop dies out no error occurs?
-                except RuntimeError:
-                    error_occured = True
-                    pass
-    
+            # create a Population from animal_list
+#            for a in animal_list:
+#                print(a.genes)
+            population = Population(population_size,animals)
+
+            end = time.clock()
+            if constants["verbose"]:
+                print("Set-up time: {0:.2e}s\n".format(end-start))
+            start = time.clock()
+
+            # initial output
+            f1 = open(path+"pop"+str(k+1)+"_mean_genes.csv",'w')
+            f2 = open(path+"pop"+str(k+1)+"_std_genes.csv",'w')            
+            f1.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
+            f2.write("R,P,A,B,O\n{0},{1},{2},{3},{4}\n".format(env.R,env.P,env.A,env.B,env.O))
+
+            f1.write("\nn,I0,I0p,W,a,b,bp,h,mu,s,sc,t,lin\n")
+            f2.write("\nn,I0,I0p,W,a,b,bp,h,mu,s,sc,t\n")
+                    
+            # iterate on the population and create outputs
+                #%timeit iterate_population(k,population,environment,f1,f2,path)
+            pop_mean, pop_std, _ = iterate_population(k,population,env,f1,f2,path) #create plots and return values for last generation
+
     
             end = time.clock()
             print(" Population {0} done! Total time: {1:.4f} min".format(k+1,(end-start)/60))
@@ -236,8 +239,5 @@ if __name__ == '__main__':
     #f4.write("\n")
     std.to_csv(f4, header=False, index=False, line_terminator='\n')
     f4.close()
-    if error_occured:
-        warnings.warn("At least one population died out and was repeated!")
-
-    
+ 
 #    
